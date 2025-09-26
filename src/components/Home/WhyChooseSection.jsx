@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { 
   StarIcon,
   HomeIcon,
@@ -13,6 +14,21 @@ import {
 } from '@heroicons/react/24/outline';
 
 const WhyChooseSection = () => {
+  const handleStartSearch = () => {
+    // Scroll to search section or navigate to search page
+    const searchSection = document.getElementById('search-section');
+    if (searchSection) {
+      searchSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Navigate to search page if search section not found
+      window.location.href = '/search';
+    }
+  };
+
+  const handleGetExpertAdvice = () => {
+    // Navigate to agents page
+    window.location.href = '/agents';
+  };
   const features = [
     {
       icon: ShieldCheckIcon,
@@ -150,10 +166,16 @@ const WhyChooseSection = () => {
                 Join thousands of satisfied customers who have found their perfect home with Ivorian Realty
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <button 
+                  onClick={handleStartSearch}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
                   Start Your Search
                 </button>
-                <button className="bg-white/80 backdrop-blur-sm border border-blue-200 text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all duration-300">
+                <button 
+                  onClick={handleGetExpertAdvice}
+                  className="bg-white/80 backdrop-blur-sm border border-blue-200 text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
+                >
                   Get Expert Advice
                 </button>
               </div>

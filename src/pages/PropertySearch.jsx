@@ -8,7 +8,13 @@ import {
   CurrencyDollarIcon,
   HeartIcon,
   FunnelIcon,
-  XMarkIcon
+  XMarkIcon,
+  StarIcon,
+  TrophyIcon,
+  UserGroupIcon,
+  ClockIcon,
+  EyeIcon,
+  ShareIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
@@ -234,12 +240,64 @@ const PropertySearch = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Property</h1>
-          <p className="text-gray-600">Discover {filteredProperties.length} properties available</p>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Find Your Perfect Property</h1>
+            <p className="text-xl text-purple-100 mb-8 max-w-3xl mx-auto">
+              Discover amazing properties from apartments to villas. 
+              Find your ideal home with our comprehensive search and filtering options.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Start Your Search
+              </button>
+              <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+                View Virtual Tours
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <HomeIcon className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-blue-600 mb-2">{filteredProperties.length}+</h3>
+              <p className="text-gray-600">Properties Available</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CurrencyDollarIcon className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-green-600 mb-2">₹2.5 Cr</h3>
+              <p className="text-gray-600">Average Price</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPinIcon className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-purple-600 mb-2">25+</h3>
+              <p className="text-gray-600">Locations</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <StarIcon className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="text-2xl font-bold text-orange-600 mb-2">4.8/5</h3>
+              <p className="text-gray-600">Customer Rating</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -353,44 +411,47 @@ const PropertySearch = () => {
         </div>
 
         {/* Properties Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {filteredProperties.map((property) => (
-            <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
               <div className="relative">
                 <img
                   src={property.image}
                   alt={property.title}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <button
-                  onClick={() => toggleFavorite(property.id)}
-                  className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                >
-                  {favorites.has(property.id) ? (
-                    <HeartSolidIcon className="h-5 w-5 text-red-500" />
-                  ) : (
-                    <HeartIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                <div className="absolute top-3 right-3 flex space-x-2">
+                  <button
+                    onClick={() => toggleFavorite(property.id)}
+                    className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+                  >
+                    {favorites.has(property.id) ? (
+                      <HeartSolidIcon className="h-5 w-5 text-red-500" />
+                    ) : (
+                      <HeartIcon className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
+                  <button className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors">
+                    <ShareIcon className="h-5 w-5 text-gray-400" />
+                  </button>
+                </div>
                 {property.verified && (
-                  <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+                  <div className="absolute top-3 left-3 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
                     Verified
                   </div>
                 )}
               </div>
 
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{property.title}</h3>
-                <p className="text-gray-600 mb-2 flex items-center">
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-blue-600 transition-colors">{property.title}</h3>
+                <p className="text-gray-600 mb-3 flex items-center">
                   <MapPinIcon className="h-4 w-4 mr-1" />
                   {property.location}
                 </p>
                 
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-2xl font-bold text-blue-600">{property.priceDisplay}</span>
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                    {property.type}
-                  </span>
+                  <span className="text-sm text-gray-500">Posted {new Date(property.postedDate).toLocaleDateString()}</span>
                 </div>
 
                 <div className="flex justify-between text-sm text-gray-600 mb-4">
@@ -406,24 +467,25 @@ const PropertySearch = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-1 mb-4">
-                  {property.amenities.slice(0, 3).map((amenity, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
-                      {amenity}
-                    </span>
+                  {property.amenities.slice(0, 2).map((amenity, index) => (
+                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{amenity}</span>
                   ))}
-                  {property.amenities.length > 3 && (
-                    <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
-                      +{property.amenities.length - 3} more
-                    </span>
+                  {property.amenities.length > 2 && (
+                    <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">+{property.amenities.length - 2} more</span>
                   )}
                 </div>
 
-                <Link
-                  to={`/property/${property.id}`}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 text-center block"
-                >
-                  View Details
-                </Link>
+                <div className="flex space-x-2">
+                  <Link
+                    to={`/property/${property.id}`}
+                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium text-center"
+                  >
+                    View Details
+                  </Link>
+                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <EyeIcon className="h-4 w-4 text-gray-400" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -436,6 +498,103 @@ const PropertySearch = () => {
             <p className="text-gray-500">Try adjusting your search criteria</p>
           </div>
         )}
+
+        {/* Market Insights */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Average Price</h3>
+                <p className="text-2xl font-bold text-green-600">₹2.5 Cr</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">+5.2% from last year</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <ClockIcon className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Average Days</h3>
+                <p className="text-2xl font-bold text-blue-600">45 days</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">Time to sell</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                <MapPinIcon className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Hot Areas</h3>
+                <p className="text-2xl font-bold text-purple-600">12</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">Trending locations</p>
+          </div>
+        </div>
+
+        {/* Why Choose Our Properties */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Why Choose Our Properties?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrophyIcon className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Verified Properties</h3>
+              <p className="text-gray-600 text-sm">All properties are thoroughly verified for quality and authenticity</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <UserGroupIcon className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Expert Guidance</h3>
+              <p className="text-gray-600 text-sm">Professional real estate agents to guide you through the process</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <StarIcon className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Best Deals</h3>
+              <p className="text-gray-600 text-sm">Competitive prices and exclusive deals for our customers</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <HeartIcon className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Customer First</h3>
+              <p className="text-gray-600 text-sm">Dedicated support throughout your property journey</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Call to Action */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 text-center text-white">
+          <h2 className="text-3xl font-bold mb-4">Ready to Find Your Dream Property?</h2>
+          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of happy homeowners who found their perfect property with us. 
+            Our expert team is ready to help you every step of the way.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              Contact an Agent
+            </button>
+            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+              Schedule a Tour
+            </button>
+            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+              Get Pre-approved
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

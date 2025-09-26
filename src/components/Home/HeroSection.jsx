@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
@@ -6,6 +6,53 @@ import {
 } from '@heroicons/react/24/outline';
 
 const HeroSection = () => {
+  const [activeTab, setActiveTab] = useState('buy');
+  const [searchForm, setSearchForm] = useState({
+    location: '',
+    propertyType: '',
+    priceMin: '',
+    priceMax: '',
+    bedrooms: '',
+    bathrooms: ''
+  });
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleInputChange = (field, value) => {
+    setSearchForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Build search URL with all form parameters
+    const searchParams = new URLSearchParams();
+    searchParams.set('type', activeTab);
+    if (searchForm.location) searchParams.set('location', searchForm.location);
+    if (searchForm.propertyType) searchParams.set('propertyType', searchForm.propertyType);
+    if (searchForm.priceMin) searchParams.set('priceMin', searchForm.priceMin);
+    if (searchForm.priceMax) searchParams.set('priceMax', searchForm.priceMax);
+    if (searchForm.bedrooms) searchParams.set('bedrooms', searchForm.bedrooms);
+    if (searchForm.bathrooms) searchParams.set('bathrooms', searchForm.bathrooms);
+    
+    window.location.href = `/search?${searchParams.toString()}`;
+  };
+
+  const clearForm = () => {
+    setSearchForm({
+      location: '',
+      propertyType: '',
+      priceMin: '',
+      priceMax: '',
+      bedrooms: '',
+      bathrooms: ''
+    });
+  };
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Animated Background Image */}
@@ -81,13 +128,27 @@ const HeroSection = () => {
           <div className="bg-white/98 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-2xl border-2 border-white/80">
             {/* Buy/Rent Tabs */}
             <div className="flex mb-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-1 shadow-inner">
-              <button className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold text-sm shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+              <button 
+                onClick={() => handleTabChange('buy')}
+                className={`flex-1 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                  activeTab === 'buy' 
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                    : 'text-purple-700 hover:bg-white hover:shadow-md'
+                }`}
+              >
                 <span className="flex items-center justify-center space-x-1">
                   <span className="text-sm">🏠</span>
                   <span>Buy</span>
                 </span>
               </button>
-              <button className="flex-1 px-4 py-2 text-purple-700 rounded-lg font-bold hover:bg-white hover:shadow-md text-sm transition-all duration-300">
+              <button 
+                onClick={() => handleTabChange('rent')}
+                className={`flex-1 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                  activeTab === 'rent' 
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                    : 'text-purple-700 hover:bg-white hover:shadow-md'
+                }`}
+              >
                 <span className="flex items-center justify-center space-x-1">
                   <span className="text-sm">🔑</span>
                   <span>Rent</span>
@@ -96,38 +157,44 @@ const HeroSection = () => {
             </div>
 
             {/* Search Form */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
-              <div className="sm:col-span-2 lg:col-span-2">
+            <form onSubmit={handleSearch} className="space-y-4 mb-4">
+              <div>
                 <div className="relative">
                   <MapPinIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-500" />
                   <input
                     type="text"
                     placeholder="Enter city, neighborhood, or address"
-                    className="w-full pl-10 pr-3 py-2 sm:py-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white placeholder-gray-500 shadow-md hover:shadow-lg"
+                    value={searchForm.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    className="w-full pl-10 pr-3 py-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white placeholder-gray-600 placeholder-opacity-90 shadow-md hover:shadow-lg"
                   />
                 </div>
               </div>
               <div>
-                <select className="w-full p-2 sm:p-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-md hover:shadow-lg">
-                  <option value="" disabled selected className="text-gray-500">Select Property Type</option>
-                  <option>🏠 Single Family</option>
-                  <option>🏢 Townhouse/Condo</option>
-                  <option>🌳 Acreage</option>
-                  <option>🏙️ Mid/High-Rise</option>
-                  <option>📐 Lots</option>
-                  <option>🏘️ Multi-Family</option>
+                <select 
+                  value={searchForm.propertyType}
+                  onChange={(e) => handleInputChange('propertyType', e.target.value)}
+                  className="w-full p-3 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-md hover:shadow-lg"
+                >
+                  <option value="" disabled className="text-gray-500">Select Property Type</option>
+                  <option value="single-family">🏠 Single Family</option>
+                  <option value="townhouse-condo">🏢 Townhouse/Condo</option>
+                  <option value="acreage">🌳 Acreage</option>
+                  <option value="mid-high-rise">🏙️ Mid/High-Rise</option>
+                  <option value="lots">📐 Lots</option>
+                  <option value="multi-family">🏘️ Multi-Family</option>
                 </select>
               </div>
               <div>
-                <Link
-                  to="/search"
-                  className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white p-2 sm:p-3 rounded-lg hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 flex items-center justify-center space-x-2 text-sm font-bold shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white p-3 rounded-lg hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 flex items-center justify-center space-x-2 text-sm font-bold shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
                 >
                   <MagnifyingGlassIcon className="h-5 w-5" />
-                  <span>Search Properties</span>
-                </Link>
+                  <span>Search {activeTab === 'buy' ? 'Properties to Buy' : 'Properties to Rent'}</span>
+                </button>
               </div>
-            </div>
+            </form>
 
             {/* Advanced Filters */}
             <div className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 rounded-lg p-4 sm:p-6 border border-blue-100">
@@ -140,19 +207,29 @@ const HeroSection = () => {
                 <div>
                   <label htmlFor="price-min" className="block text-xs font-semibold text-gray-700 mb-2">💰 Price Range</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <select id="price-min" className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm">
-                      <option value="" disabled selected className="text-gray-500">Min Price</option>
-                      <option>$100K</option>
-                      <option>$200K</option>
-                      <option>$300K</option>
-                      <option>$500K</option>
+                    <select 
+                      id="price-min" 
+                      value={searchForm.priceMin}
+                      onChange={(e) => handleInputChange('priceMin', e.target.value)}
+                      className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm"
+                    >
+                      <option value="" disabled className="text-gray-500">Min Price</option>
+                      <option value="100000">$100K</option>
+                      <option value="200000">$200K</option>
+                      <option value="300000">$300K</option>
+                      <option value="500000">$500K</option>
                     </select>
-                    <select id="price-max" className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm">
-                      <option value="" disabled selected className="text-gray-500">Max Price</option>
-                      <option>$500K</option>
-                      <option>$1M</option>
-                      <option>$2M</option>
-                      <option>$5M</option>
+                    <select 
+                      id="price-max" 
+                      value={searchForm.priceMax}
+                      onChange={(e) => handleInputChange('priceMax', e.target.value)}
+                      className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm"
+                    >
+                      <option value="" disabled className="text-gray-500">Max Price</option>
+                      <option value="500000">$500K</option>
+                      <option value="1000000">$1M</option>
+                      <option value="2000000">$2M</option>
+                      <option value="5000000">$5M</option>
                     </select>
                   </div>
                 </div>
@@ -161,19 +238,29 @@ const HeroSection = () => {
                 <div>
                   <label htmlFor="beds-min" className="block text-xs font-semibold text-gray-700 mb-2">🛏️ Bedrooms</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <select id="beds-min" className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm">
-                      <option value="" disabled selected className="text-gray-500">Min Beds</option>
-                      <option>1+</option>
-                      <option>2+</option>
-                      <option>3+</option>
-                      <option>4+</option>
+                    <select 
+                      id="beds-min" 
+                      value={searchForm.bedrooms}
+                      onChange={(e) => handleInputChange('bedrooms', e.target.value)}
+                      className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm"
+                    >
+                      <option value="" disabled className="text-gray-500">Min Beds</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
+                      <option value="4">4+</option>
                     </select>
-                    <select id="beds-max" className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm">
-                      <option value="" disabled selected className="text-gray-500">Max Beds</option>
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
+                    <select 
+                      id="beds-max" 
+                      value={searchForm.bedrooms}
+                      onChange={(e) => handleInputChange('bedrooms', e.target.value)}
+                      className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm"
+                    >
+                      <option value="" disabled className="text-gray-500">Max Beds</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
                     </select>
                   </div>
                 </div>
@@ -182,29 +269,46 @@ const HeroSection = () => {
                 <div>
                   <label htmlFor="baths-min" className="block text-xs font-semibold text-gray-700 mb-2">🛁 Bathrooms</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <select id="baths-min" className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm">
-                      <option value="" disabled selected className="text-gray-500">Min Baths</option>
-                      <option>1+</option>
-                      <option>2+</option>
-                      <option>3+</option>
+                    <select 
+                      id="baths-min" 
+                      value={searchForm.bathrooms}
+                      onChange={(e) => handleInputChange('bathrooms', e.target.value)}
+                      className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm"
+                    >
+                      <option value="" disabled className="text-gray-500">Min Baths</option>
+                      <option value="1">1+</option>
+                      <option value="2">2+</option>
+                      <option value="3">3+</option>
                     </select>
-                    <select id="baths-max" className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm">
-                      <option value="" disabled selected className="text-gray-500">Max Baths</option>
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
+                    <select 
+                      id="baths-max" 
+                      value={searchForm.bathrooms}
+                      onChange={(e) => handleInputChange('bathrooms', e.target.value)}
+                      className="w-full p-2.5 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs transition-all duration-300 hover:border-blue-300 bg-white focus:bg-white text-gray-700 shadow-sm"
+                    >
+                      <option value="" disabled className="text-gray-500">Max Baths</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
                     </select>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <button className="flex-1 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 p-2.5 rounded-lg hover:from-blue-200 hover:to-purple-200 text-xs font-semibold transition-all duration-300 hover:shadow-md">
-                    More Filters
+                  <button 
+                    type="button"
+                    onClick={clearForm}
+                    className="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 p-2.5 rounded-lg hover:from-gray-200 hover:to-gray-300 text-xs font-semibold transition-all duration-300 hover:shadow-md"
+                  >
+                    Clear All Filters
                   </button>
-                  <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center">
+                  <button 
+                    type="button"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center"
+                  >
                     <MapPinIcon className="h-4 w-4 mr-2" />
-                    <span className="text-xs">Location</span>
+                    <span className="text-xs">Search by Map</span>
                   </button>
                 </div>
               </div>
