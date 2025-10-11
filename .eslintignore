@@ -1,0 +1,20 @@
+# Backend files
+backend-example/
+scripts/
+ecosystem.config.js
+
+# Build outputs
+node_modules/
+dist/
+build/
+
+# Config files
+*.config.js
+*.config.json
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env*

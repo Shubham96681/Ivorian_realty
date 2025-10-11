@@ -5,5 +5,9 @@
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended"
   ],
-  "plugins": ["react", "react-hooks", "jsx-a11y"]
+  "plugins": ["react", "react-hooks", "jsx-a11y"],
+  "env": {
+    "browser": true,
+    "es2021": true
+  }
 }

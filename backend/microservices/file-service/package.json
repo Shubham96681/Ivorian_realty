@@ -1,0 +1,54 @@
+{
+  "name": "@ivorian-realty/file-service",
+  "version": "1.0.0",
+  "description": "File upload and management service for Ivorian Realty",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^7.1.5",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.0",
+    "joi": "^17.11.0",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0",
+    "mongodb": "^6.3.0",
+    "aws-sdk": "^2.1501.0",
+    "uuid": "^9.0.1",
+    "@ivorian-realty/shared-lib": "file:../shared-lib"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/compression": "^1.7.5",
+    "@types/multer": "^1.4.11",
+    "@types/uuid": "^9.0.7",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "tsx": "^4.6.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.55.0",
+    "rimraf": "^5.0.5"
+  },
+  "keywords": [
+    "file",
+    "upload",
+    "storage",
+    "microservices",
+    "real-estate"
+  ],
+  "author": "Ivorian Realty Team",
+  "license": "MIT"
+}
