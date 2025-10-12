@@ -79,35 +79,11 @@ const PropertyDetails = () => {
     e.preventDefault();
     try {
       await propertyService.contactPropertyOwner(id, contactForm);
-      
-      // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-      successMessage.textContent = 'Message sent successfully!';
-      document.body.appendChild(successMessage);
-      
-      // Remove the message after 5 seconds
-      setTimeout(() => {
-        if (document.body.contains(successMessage)) {
-          document.body.removeChild(successMessage);
-        }
-      }, 5000);
-      
+      alert('Message sent successfully!');
       setShowContactForm(false);
       setContactForm(prev => ({ ...prev, message: '' }));
     } catch {
-      // Show error message
-      const errorMessage = document.createElement('div');
-      errorMessage.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-      errorMessage.textContent = 'Failed to send message. Please try again.';
-      document.body.appendChild(errorMessage);
-      
-      // Remove the message after 5 seconds
-      setTimeout(() => {
-        if (document.body.contains(errorMessage)) {
-          document.body.removeChild(errorMessage);
-        }
-      }, 5000);
+      alert('Failed to send message. Please try again.');
     }
   };
 
@@ -125,19 +101,7 @@ const PropertyDetails = () => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      
-      // Show success message
-      const successMessage = document.createElement('div');
-      successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-      successMessage.textContent = 'Link copied to clipboard!';
-      document.body.appendChild(successMessage);
-      
-      // Remove the message after 3 seconds
-      setTimeout(() => {
-        if (document.body.contains(successMessage)) {
-          document.body.removeChild(successMessage);
-        }
-      }, 3000);
+      alert('Link copied to clipboard!');
     }
   };
 

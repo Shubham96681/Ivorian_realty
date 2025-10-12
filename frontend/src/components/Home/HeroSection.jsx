@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon
@@ -32,16 +33,16 @@ const HeroSection = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     // Build search URL with all form parameters
-    const params = [];
-    params.push(`type=${encodeURIComponent(activeTab)}`);
-    if (searchForm.location) params.push(`location=${encodeURIComponent(searchForm.location)}`);
-    if (searchForm.propertyType) params.push(`propertyType=${encodeURIComponent(searchForm.propertyType)}`);
-    if (searchForm.priceMin) params.push(`priceMin=${encodeURIComponent(searchForm.priceMin)}`);
-    if (searchForm.priceMax) params.push(`priceMax=${encodeURIComponent(searchForm.priceMax)}`);
-    if (searchForm.bedrooms) params.push(`bedrooms=${encodeURIComponent(searchForm.bedrooms)}`);
-    if (searchForm.bathrooms) params.push(`bathrooms=${encodeURIComponent(searchForm.bathrooms)}`);
+    const searchParams = new URLSearchParams();
+    searchParams.set('type', activeTab);
+    if (searchForm.location) searchParams.set('location', searchForm.location);
+    if (searchForm.propertyType) searchParams.set('propertyType', searchForm.propertyType);
+    if (searchForm.priceMin) searchParams.set('priceMin', searchForm.priceMin);
+    if (searchForm.priceMax) searchParams.set('priceMax', searchForm.priceMax);
+    if (searchForm.bedrooms) searchParams.set('bedrooms', searchForm.bedrooms);
+    if (searchForm.bathrooms) searchParams.set('bathrooms', searchForm.bathrooms);
     
-    window.location.href = `/search?${params.join('&')}`;
+    window.location.href = `/search?${searchParams.toString()}`;
   };
 
   const clearForm = () => {

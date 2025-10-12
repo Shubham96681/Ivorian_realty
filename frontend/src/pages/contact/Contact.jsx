@@ -1,19 +1,46 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
+  MagnifyingGlassIcon, 
+  MapPinIcon, 
   HomeIcon,
+  CurrencyDollarIcon,
+  ChartBarIcon,
   StarIcon,
+  ShareIcon,
+  EyeIcon,
+  CheckIcon,
   UserGroupIcon,
   PhoneIcon,
   ChatBubbleLeftRightIcon,
+  ClockIcon,
+  AcademicCapIcon,
   TrophyIcon,
   BuildingOfficeIcon,
+  GlobeAltIcon,
+  ShieldCheckIcon,
+  BanknotesIcon,
+  UserIcon,
+  CalculatorIcon,
+  DocumentTextIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  MinusIcon,
   BuildingOffice2Icon,
+  ShoppingBagIcon,
   TruckIcon,
+  HomeIcon as HouseIcon,
+  UserGroupIcon as PeopleIcon,
+  CalendarDaysIcon,
+  NewspaperIcon,
+  TagIcon,
+  ArrowRightIcon,
+  BookOpenIcon,
   EnvelopeIcon,
   MapIcon,
   ClockIcon as TimeIcon
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 const Contact = () => {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -40,18 +67,7 @@ const Contact = () => {
     e.preventDefault();
     // Handle form submission
     console.log('Contact form submitted:', contactForm);
-    
-    // Show success message (you can replace this with a proper toast notification)
-    const successMessage = document.createElement('div');
-    successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-    successMessage.textContent = 'Thank you for your message! We will get back to you soon.';
-    document.body.appendChild(successMessage);
-    
-    // Remove the message after 5 seconds
-    setTimeout(() => {
-      document.body.removeChild(successMessage);
-    }, 5000);
-    
+    alert('Thank you for your message! We will get back to you soon.');
     setContactForm({
       name: '',
       email: '',

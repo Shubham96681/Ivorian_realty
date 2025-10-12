@@ -389,19 +389,7 @@ const PropertySearch = () => {
                         });
                       } else {
                         navigator.clipboard.writeText(window.location.origin + `/property/${property.id}`);
-                        
-                        // Show success message
-                        const successMessage = document.createElement('div');
-                        successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                        successMessage.textContent = 'Property link copied to clipboard!';
-                        document.body.appendChild(successMessage);
-                        
-                        // Remove the message after 3 seconds
-                        setTimeout(() => {
-                          if (document.body.contains(successMessage)) {
-                            document.body.removeChild(successMessage);
-                          }
-                        }, 3000);
+                        alert('Property link copied to clipboard!');
                       }
                     }}
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
