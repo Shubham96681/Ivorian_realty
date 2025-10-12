@@ -178,8 +178,10 @@ export const AuthProvider = ({ children }) => {
     isBuyer: user?.role === 'buyer',
     isTenant: user?.role === 'tenant',
     isOwner: user?.role === 'owner',
-    isDealer: user?.role === 'dealer',
+    isAgent: user?.role === 'agent',
+    isBroker: user?.role === 'broker',
     isBuilder: user?.role === 'builder',
+    isDeveloper: user?.role === 'developer',
     isAdmin: user?.role === 'admin',
   };
 

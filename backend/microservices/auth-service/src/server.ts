@@ -89,7 +89,7 @@ app.post('/register', async (req, res) => {
       password: hashedPassword,
       firstName,
       lastName,
-      role: 'user',
+      role: req.body.role || 'buyer', // Default to buyer, but allow role selection
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -182,6 +182,103 @@ app.post('/login', async (req, res) => {
 
   } catch (error) {
     logger.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+// Get current user profile
+app.get('/me', (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    const user = users.find(u => u.id === decoded.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        name: `${user.firstName} ${user.lastName}`,
+        createdAt: user.createdAt
+      }
+    });
+
+  } catch (error) {
+    logger.error('Get user profile error:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Invalid token'
+    });
+  }
+});
+
+// Update user profile
+app.put('/profile', (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    const userIndex = users.findIndex(u => u.id === decoded.userId);
+    
+    if (userIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update user data
+    const { firstName, lastName, role } = req.body;
+    if (firstName) users[userIndex].firstName = firstName;
+    if (lastName) users[userIndex].lastName = lastName;
+    if (role) users[userIndex].role = role;
+    users[userIndex].updatedAt = new Date();
+
+    const updatedUser = users[userIndex];
+
+    res.json({
+      success: true,
+      data: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        role: updatedUser.role,
+        name: `${updatedUser.firstName} ${updatedUser.lastName}`,
+        updatedAt: updatedUser.updatedAt
+      }
+    });
+
+  } catch (error) {
+    logger.error('Update profile error:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'

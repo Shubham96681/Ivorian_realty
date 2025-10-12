@@ -4,8 +4,14 @@ export const authService = {
   // User registration
   register: async (userData) => {
     try {
-      const response = await api.post('/auth/register', userData);
-      return response.data;
+      const response = await authAPI.post('/register', userData);
+      const { token, user } = response.data.data;
+      
+      // Store token and user data
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      return { token, user };
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Registration failed');
     }
@@ -14,8 +20,8 @@ export const authService = {
   // User login
   login: async (credentials) => {
     try {
-      const response = await api.post('/auth/login', credentials);
-      const { token, user } = response.data;
+      const response = await authAPI.post('/login', credentials);
+      const { token, user } = response.data.data;
       
       // Store token and user data
       localStorage.setItem('token', token);
@@ -43,8 +49,8 @@ export const authService = {
   // Get current user profile
   getCurrentUser: async () => {
     try {
-      const response = await api.get('/auth/me');
-      return response.data;
+      const response = await authAPI.get('/me');
+      return response.data.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to get user profile');
     }
@@ -53,8 +59,8 @@ export const authService = {
   // Update user profile
   updateProfile: async (userData) => {
     try {
-      const response = await api.put('/auth/profile', userData);
-      const updatedUser = response.data;
+      const response = await authAPI.put('/profile', userData);
+      const updatedUser = response.data.data;
       
       // Update stored user data
       localStorage.setItem('user', JSON.stringify(updatedUser));

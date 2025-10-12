@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { contactService } from '../../services/contactService';
 import { 
   HomeIcon,
   StarIcon,
@@ -36,23 +37,28 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Contact form submitted:', contactForm);
-    // eslint-disable-next-line no-undef
-    window.alert('Thank you for your message! We will get back to you soon.');
-    setContactForm({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-      propertyType: '',
-      budget: '',
-      timeline: ''
-    });
-    setShowContactForm(false);
+    try {
+      await contactService.submitContactForm(contactForm);
+      // eslint-disable-next-line no-undef
+      window.alert('Thank you for your message! We will get back to you soon.');
+      setContactForm({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        propertyType: '',
+        budget: '',
+        timeline: ''
+      });
+      setShowContactForm(false);
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      // eslint-disable-next-line no-undef
+      window.alert('Failed to send message. Please try again or contact us directly.');
+    }
   };
 
   const handleGetStarted = () => {

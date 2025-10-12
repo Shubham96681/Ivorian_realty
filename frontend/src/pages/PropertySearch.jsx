@@ -44,33 +44,98 @@ const PropertySearch = () => {
       try {
         setLoading(true);
         const response = await propertyService.getProperties();
-        const propertiesData = response.properties || response;
+        console.log('API Response:', response); // Debug log
+        
+        // Ensure we have an array of properties
+        let propertiesData = [];
+        if (Array.isArray(response)) {
+          propertiesData = response;
+        } else if (response && Array.isArray(response.properties)) {
+          propertiesData = response.properties;
+        } else if (response && Array.isArray(response.data)) {
+          propertiesData = response.data;
+        } else {
+          console.warn('No properties array found in response:', response);
+          propertiesData = [];
+        }
         
         // Transform API data to match component expectations
         const transformedProperties = propertiesData.map(property => ({
-          id: property.id,
-          title: property.title,
-          location: `${property.address}, ${property.city}`,
-          price: property.price,
-          priceDisplay: property.priceDisplay || `₹${property.price?.toLocaleString()}`,
-          image: property.image,
-          type: property.propertyType,
-          bedrooms: property.bedrooms,
-          bathrooms: property.bathrooms,
-          area: property.area,
-          areaDisplay: property.area,
-          postedDate: property.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+          id: property.id || property._id,
+          title: property.title || 'Property',
+          location: property.location || `${property.address || ''}, ${property.city || ''}`,
+          price: property.price || 0,
+          priceDisplay: property.priceDisplay || `₹${(property.price || 0).toLocaleString()}`,
+          image: property.image || '/images/placeholder-property.jpg',
+          type: property.type || property.propertyType || 'house',
+          bedrooms: property.bedrooms || 0,
+          bathrooms: property.bathrooms || 0,
+          area: property.area || 'N/A',
+          areaDisplay: property.area || 'N/A',
+          postedDate: property.createdAt?.split('T')[0] || property.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
           verified: true,
-          amenities: property.features || []
+          amenities: property.amenities || property.features || []
         }));
         
         setProperties(transformedProperties);
         setFilteredProperties(transformedProperties);
       } catch (error) {
         console.error('Error fetching properties:', error);
-        // Fallback to empty array if API fails
-        setProperties([]);
-        setFilteredProperties([]);
+        
+        // Fallback to mock data for development
+        const mockProperties = [
+          {
+            id: '1',
+            title: 'Luxury Villa in Cocody',
+            location: 'Cocody, Abidjan',
+            price: 500000,
+            priceDisplay: '₹500,000',
+            image: '/images/placeholder-property.jpg',
+            type: 'villa',
+            bedrooms: 4,
+            bathrooms: 3,
+            area: '2500 sq ft',
+            areaDisplay: '2500 sq ft',
+            postedDate: new Date().toISOString().split('T')[0],
+            verified: true,
+            amenities: ['Swimming Pool', 'Garden', 'Parking']
+          },
+          {
+            id: '2',
+            title: 'Modern Apartment in Plateau',
+            location: 'Plateau, Abidjan',
+            price: 150000,
+            priceDisplay: '₹150,000',
+            image: '/images/placeholder-property.jpg',
+            type: 'apartment',
+            bedrooms: 2,
+            bathrooms: 1,
+            area: '1200 sq ft',
+            areaDisplay: '1200 sq ft',
+            postedDate: new Date().toISOString().split('T')[0],
+            verified: true,
+            amenities: ['Balcony', 'Security', 'Elevator']
+          },
+          {
+            id: '3',
+            title: 'Family House in Yopougon',
+            location: 'Yopougon, Abidjan',
+            price: 300000,
+            priceDisplay: '₹300,000',
+            image: '/images/placeholder-property.jpg',
+            type: 'house',
+            bedrooms: 3,
+            bathrooms: 2,
+            area: '1800 sq ft',
+            areaDisplay: '1800 sq ft',
+            postedDate: new Date().toISOString().split('T')[0],
+            verified: true,
+            amenities: ['Garden', 'Parking', 'Security']
+          }
+        ];
+        
+        setProperties(mockProperties);
+        setFilteredProperties(mockProperties);
       } finally {
         setLoading(false);
       }
@@ -146,16 +211,32 @@ const PropertySearch = () => {
     applyFilters();
   }, [filters, properties]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleFavorite = (propertyId) => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(propertyId)) {
-        newFavorites.delete(propertyId);
+  const toggleFavorite = async (propertyId) => {
+    try {
+      if (favorites.has(propertyId)) {
+        await propertyService.removeFromFavorites(propertyId);
+        setFavorites(prev => {
+          const newFavorites = new Set(prev);
+          newFavorites.delete(propertyId);
+          return newFavorites;
+        });
+        // eslint-disable-next-line no-undef
+        window.alert('Property removed from favorites');
       } else {
-        newFavorites.add(propertyId);
+        await propertyService.saveToFavorites(propertyId);
+        setFavorites(prev => {
+          const newFavorites = new Set(prev);
+          newFavorites.add(propertyId);
+          return newFavorites;
+        });
+        // eslint-disable-next-line no-undef
+        window.alert('Property added to favorites');
       }
-      return newFavorites;
-    });
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      // eslint-disable-next-line no-undef
+      window.alert('Failed to update favorites. Please try again.');
+    }
   };
 
   const clearFilters = () => {
@@ -555,13 +636,28 @@ const PropertySearch = () => {
             Our expert team is ready to help you every step of the way.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            <button 
+              onClick={() => window.location.href = '/contact'}
+              className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            >
               Contact an Agent
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+            <button 
+              onClick={() => showComingSoon(
+                "Schedule a Tour Coming Soon", 
+                "You'll be able to schedule property tours directly through our platform. Our agents will contact you to arrange convenient viewing times."
+              )}
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors"
+            >
               Schedule a Tour
             </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors">
+            <button 
+              onClick={() => showComingSoon(
+                "Pre-approval Coming Soon", 
+                "Get pre-approved for your mortgage directly through our platform. Connect with our trusted lending partners for quick pre-approval."
+              )}
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors"
+            >
               Get Pre-approved
             </button>
           </div>

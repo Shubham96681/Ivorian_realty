@@ -10,6 +10,15 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 
+// Import role-specific dashboard components
+import BuyerDashboard from '../components/Dashboard/BuyerDashboard';
+import TenantDashboard from '../components/Dashboard/TenantDashboard';
+import OwnerDashboard from '../components/Dashboard/OwnerDashboard';
+import AgentDashboard from '../components/Dashboard/AgentDashboard';
+import BrokerDashboard from '../components/Dashboard/BrokerDashboard';
+import BuilderDashboard from '../components/Dashboard/BuilderDashboard';
+import DeveloperDashboard from '../components/Dashboard/DeveloperDashboard';
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
 
@@ -28,8 +37,10 @@ const Dashboard = () => {
       buyer: 'Ready to find your dream home?',
       tenant: 'Looking for the perfect rental?',
       owner: 'Manage your property listings',
-      dealer: 'Help clients find their perfect property',
+      agent: 'Help clients find their perfect property',
+      broker: 'Manage your real estate business',
       builder: 'Showcase your new developments',
+      developer: 'Manage your development projects',
       admin: 'Manage the platform'
     };
     
@@ -55,15 +66,27 @@ const Dashboard = () => {
         { name: 'My Properties', href: '/my-properties', icon: HomeIcon, color: 'bg-blue-500' },
         { name: 'Messages', href: '/messages', icon: BellIcon, color: 'bg-purple-500' }
       ],
-      dealer: [
+      agent: [
         { name: 'Add Property', href: '/add-property', icon: PlusIcon, color: 'bg-green-500' },
         { name: 'My Listings', href: '/my-listings', icon: HomeIcon, color: 'bg-blue-500' },
         { name: 'Client Messages', href: '/messages', icon: BellIcon, color: 'bg-purple-500' }
+      ],
+      broker: [
+        { name: 'Add Property', href: '/add-property', icon: PlusIcon, color: 'bg-green-500' },
+        { name: 'My Listings', href: '/my-listings', icon: HomeIcon, color: 'bg-blue-500' },
+        { name: 'Team Management', href: '/team', icon: UserIcon, color: 'bg-purple-500' },
+        { name: 'Analytics', href: '/analytics', icon: CogIcon, color: 'bg-orange-500' }
       ],
       builder: [
         { name: 'Add Development', href: '/add-development', icon: PlusIcon, color: 'bg-green-500' },
         { name: 'My Projects', href: '/my-projects', icon: HomeIcon, color: 'bg-blue-500' },
         { name: 'Inquiries', href: '/inquiries', icon: BellIcon, color: 'bg-purple-500' }
+      ],
+      developer: [
+        { name: 'Add Development', href: '/add-development', icon: PlusIcon, color: 'bg-green-500' },
+        { name: 'My Projects', href: '/my-projects', icon: HomeIcon, color: 'bg-blue-500' },
+        { name: 'Project Management', href: '/project-management', icon: CogIcon, color: 'bg-orange-500' },
+        { name: 'Financial Reports', href: '/financial-reports', icon: BellIcon, color: 'bg-purple-500' }
       ],
       admin: [
         { name: 'Manage Users', href: '/admin/users', icon: UserIcon, color: 'bg-red-500' },
@@ -73,6 +96,34 @@ const Dashboard = () => {
     };
 
     return actions[user.role] || [];
+  };
+
+  const renderRoleSpecificDashboard = () => {
+    if (!user) return null;
+
+    switch (user.role) {
+      case 'buyer':
+        return <BuyerDashboard />;
+      case 'tenant':
+        return <TenantDashboard />;
+      case 'owner':
+        return <OwnerDashboard />;
+      case 'agent':
+        return <AgentDashboard />;
+      case 'broker':
+        return <BrokerDashboard />;
+      case 'builder':
+        return <BuilderDashboard />;
+      case 'developer':
+        return <DeveloperDashboard />;
+      default:
+        return (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Welcome to your dashboard!</h3>
+            <p className="text-gray-600">Your role-specific dashboard will appear here once your account is fully set up.</p>
+          </div>
+        );
+    }
   };
 
   return (
@@ -121,75 +172,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {getQuickActions().map((action, index) => (
-              <Link
-                key={index}
-                to={action.href}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200"
-              >
-                <div className="flex items-center">
-                  <div className={`h-12 w-12 ${action.color} rounded-lg flex items-center justify-center mr-4`}>
-                    <action.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium text-gray-900">{action.name}</h4>
-                    <p className="text-sm text-gray-500">Click to get started</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-          <div className="text-center py-8">
-            <BellIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No recent activity to show</p>
-            <p className="text-sm text-gray-400 mt-2">
-              Your recent searches, saved properties, and messages will appear here
-            </p>
-          </div>
-        </div>
-
-        {/* Role-specific Information */}
-        {user?.role === 'buyer' && (
-          <div className="mt-8 bg-blue-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-blue-900 mb-2">Buying Tips</h3>
-            <ul className="text-blue-800 space-y-1">
-              <li>• Get pre-approved for a mortgage before house hunting</li>
-              <li>• Consider location, schools, and commute times</li>
-              <li>• Factor in additional costs like property taxes and maintenance</li>
-            </ul>
-          </div>
-        )}
-
-        {user?.role === 'tenant' && (
-          <div className="mt-8 bg-green-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-green-900 mb-2">Rental Tips</h3>
-            <ul className="text-green-800 space-y-1">
-              <li>• Check your credit score before applying</li>
-              <li>• Have references and documents ready</li>
-              <li>• Read the lease agreement carefully</li>
-            </ul>
-          </div>
-        )}
-
-        {user?.role === 'owner' && (
-          <div className="mt-8 bg-purple-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-purple-900 mb-2">Property Owner Tips</h3>
-            <ul className="text-purple-800 space-y-1">
-              <li>• Take high-quality photos of your property</li>
-              <li>• Set competitive pricing based on market research</li>
-              <li>• Respond quickly to inquiries from potential buyers/tenants</li>
-            </ul>
-          </div>
-        )}
+        {/* Role-specific Dashboard */}
+        {renderRoleSpecificDashboard()}
       </div>
     </div>
   );

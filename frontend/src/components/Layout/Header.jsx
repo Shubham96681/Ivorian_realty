@@ -10,9 +10,6 @@ import {
   HeartIcon,
   PlusIcon,
   ChevronDownIcon,
-  MapPinIcon,
-  CurrencyDollarIcon,
-  BuildingOfficeIcon,
   BellIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
@@ -21,8 +18,7 @@ import {
   FireIcon,
   StarIcon,
   ClockIcon,
-  EyeIcon,
-  ShareIcon
+  EyeIcon
 } from '@heroicons/react/24/outline';
 
 const Header = () => {
@@ -37,7 +33,7 @@ const Header = () => {
   const [notificationCount, setNotificationCount] = useState(3);
   const [favoriteCount] = useState(12);
   const [clickedDropdown, setClickedDropdown] = useState(null);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const getRoleDisplayName = (role) => {
     const roleMap = {
@@ -537,10 +533,10 @@ const Header = () => {
                           </div>
                           <div className="ml-3">
                             <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
-                            <p className="text-xs text-gray-500 flex items-center">
+                            <div className="text-xs text-gray-500 flex items-center">
                               <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
                               {getRoleDisplayName(user?.role)}
-                            </p>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -564,7 +560,18 @@ const Header = () => {
                           <div className="ml-auto w-2 h-2 bg-blue-100 rounded-full group-hover:bg-blue-500 transition-colors duration-200"></div>
                         </Link>
                         <div className="border-t border-gray-100 mt-2 pt-2">
-                          <button className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 rounded-lg mx-2 group">
+                          <button 
+                            onClick={async () => {
+                              try {
+                                await logout();
+                                setIsUserMenuOpen(false);
+                                window.location.href = '/';
+                              } catch (error) {
+                                console.error('Logout error:', error);
+                              }
+                            }}
+                            className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 rounded-lg mx-2 group"
+                          >
                             <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
                             <span>Sign Out</span>
                             <div className="ml-auto w-2 h-2 bg-red-100 rounded-full group-hover:bg-red-500 transition-colors duration-200"></div>
@@ -767,7 +774,18 @@ const Header = () => {
                     <Cog6ToothIcon className="h-4 w-4 mr-2" />
                     Settings
                   </Link>
-                  <button className="flex items-center w-full px-6 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150">
+                  <button 
+                    onClick={async () => {
+                      try {
+                        await logout();
+                        setIsMenuOpen(false);
+                        window.location.href = '/';
+                      } catch (error) {
+                        console.error('Logout error:', error);
+                      }
+                    }}
+                    className="flex items-center w-full px-6 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
+                  >
                     <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
                     Sign Out
                   </button>

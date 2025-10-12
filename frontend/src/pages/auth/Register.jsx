@@ -25,8 +25,10 @@ const Register = () => {
     { value: 'buyer', label: 'Buyer', description: 'Looking to buy property' },
     { value: 'tenant', label: 'Tenant', description: 'Looking to rent property' },
     { value: 'owner', label: 'Owner', description: 'Want to sell/rent your property' },
-    { value: 'dealer', label: 'Agent/Broker', description: 'Real estate professional' },
-    { value: 'builder', label: 'Builder/Developer', description: 'Property developer' }
+    { value: 'agent', label: 'Real Estate Agent', description: 'Help clients buy/sell properties' },
+    { value: 'broker', label: 'Real Estate Broker', description: 'Manage real estate business' },
+    { value: 'builder', label: 'Builder', description: 'Construct new properties' },
+    { value: 'developer', label: 'Developer', description: 'Develop real estate projects' }
   ];
 
   const handleChange = (e) => {
@@ -57,7 +59,8 @@ const Register = () => {
 
     try {
       const registrationData = {
-        name: formData.name,
+        firstName: formData.name.split(' ')[0],
+        lastName: formData.name.split(' ').slice(1).join(' ') || '',
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
