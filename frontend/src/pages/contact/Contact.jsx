@@ -1,46 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  MagnifyingGlassIcon, 
-  MapPinIcon, 
   HomeIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon,
   StarIcon,
-  ShareIcon,
-  EyeIcon,
-  CheckIcon,
   UserGroupIcon,
   PhoneIcon,
   ChatBubbleLeftRightIcon,
-  ClockIcon,
-  AcademicCapIcon,
   TrophyIcon,
   BuildingOfficeIcon,
-  GlobeAltIcon,
-  ShieldCheckIcon,
-  BanknotesIcon,
-  UserIcon,
-  CalculatorIcon,
-  DocumentTextIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  MinusIcon,
   BuildingOffice2Icon,
-  ShoppingBagIcon,
   TruckIcon,
-  HomeIcon as HouseIcon,
-  UserGroupIcon as PeopleIcon,
-  CalendarDaysIcon,
-  NewspaperIcon,
-  TagIcon,
-  ArrowRightIcon,
-  BookOpenIcon,
   EnvelopeIcon,
   MapIcon,
   ClockIcon as TimeIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 const Contact = () => {
   const [showContactForm, setShowContactForm] = useState(false);
@@ -67,7 +40,8 @@ const Contact = () => {
     e.preventDefault();
     // Handle form submission
     console.log('Contact form submitted:', contactForm);
-    alert('Thank you for your message! We will get back to you soon.');
+    // eslint-disable-next-line no-undef
+    window.alert('Thank you for your message! We will get back to you soon.');
     setContactForm({
       name: '',
       email: '',

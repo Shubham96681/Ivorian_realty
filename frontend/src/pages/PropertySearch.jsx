@@ -389,7 +389,8 @@ const PropertySearch = () => {
                         });
                       } else {
                         navigator.clipboard.writeText(window.location.origin + `/property/${property.id}`);
-                        alert('Property link copied to clipboard!');
+                        // eslint-disable-next-line no-undef
+                        window.alert('Property link copied to clipboard!');
                       }
                     }}
                     className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"

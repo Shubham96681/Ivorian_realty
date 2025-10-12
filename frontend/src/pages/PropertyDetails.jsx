@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { propertyService } from '../services/propertyService';
 import { 
@@ -13,7 +13,6 @@ import {
   EnvelopeIcon,
   HeartIcon,
   ShareIcon,
-  EyeIcon,
   CheckIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
@@ -79,11 +78,13 @@ const PropertyDetails = () => {
     e.preventDefault();
     try {
       await propertyService.contactPropertyOwner(id, contactForm);
-      alert('Message sent successfully!');
+      // eslint-disable-next-line no-undef
+      window.alert('Message sent successfully!');
       setShowContactForm(false);
       setContactForm(prev => ({ ...prev, message: '' }));
     } catch {
-      alert('Failed to send message. Please try again.');
+      // eslint-disable-next-line no-undef
+      window.alert('Failed to send message. Please try again.');
     }
   };
 
@@ -101,7 +102,8 @@ const PropertyDetails = () => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
+      // eslint-disable-next-line no-undef
+      window.alert('Link copied to clipboard!');
     }
   };
 
