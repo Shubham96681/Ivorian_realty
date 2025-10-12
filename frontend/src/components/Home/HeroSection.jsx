@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon
@@ -33,6 +32,7 @@ const HeroSection = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     // Build search URL with all form parameters
+    // eslint-disable-next-line no-undef
     const searchParams = new URLSearchParams();
     searchParams.set('type', activeTab);
     if (searchForm.location) searchParams.set('location', searchForm.location);
