@@ -112,6 +112,7 @@ app.post('/register', async (req, res) => {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          name: `${user.firstName} ${user.lastName}`,
           role: user.role
         },
         token
@@ -174,6 +175,7 @@ app.post('/login', async (req, res) => {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          name: `${user.firstName} ${user.lastName}`,
           role: user.role
         },
         token

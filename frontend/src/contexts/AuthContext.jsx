@@ -36,7 +36,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const { user: userData } = await authService.login(credentials);
+      
+      // Ensure user data is properly stored and set
+      localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
+      
       return userData;
     } catch (error) {
       setError(error.message);
@@ -51,7 +55,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const { user: newUser } = await authService.register(userData);
+      
+      // Ensure user data is properly stored and set
+      localStorage.setItem('user', JSON.stringify(newUser));
       setUser(newUser);
+      
       return newUser;
     } catch (error) {
       setError(error.message);
