@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Ivorian Realty Team Setup Script
 
 echo "🏗️ Setting up Ivorian Realty Microservices for Team Development..."

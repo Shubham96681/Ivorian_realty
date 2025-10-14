@@ -60,13 +60,30 @@ const users: any[] = [];
 // Register endpoint
 app.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName, phone, role } = req.body;
 
     // Validate input
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: 'Email, password, first name, and last name are required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
       });
     }
 
@@ -75,7 +92,7 @@ app.post('/register', async (req, res) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'User already exists'
+        message: 'User with this email already exists'
       });
     }
 
@@ -89,7 +106,8 @@ app.post('/register', async (req, res) => {
       password: hashedPassword,
       firstName,
       lastName,
-      role: req.body.role || 'buyer', // Default to buyer, but allow role selection
+      phone: phone || null,
+      role: role || 'buyer', // Default to buyer, but allow role selection
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -113,6 +131,7 @@ app.post('/register', async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           name: `${user.firstName} ${user.lastName}`,
+          phone: user.phone,
           role: user.role
         },
         token
@@ -176,6 +195,7 @@ app.post('/login', async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           name: `${user.firstName} ${user.lastName}`,
+          phone: user.phone,
           role: user.role
         },
         token
@@ -220,6 +240,7 @@ app.get('/me', (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phone: user.phone,
         role: user.role,
         name: `${user.firstName} ${user.lastName}`,
         createdAt: user.createdAt
@@ -258,9 +279,10 @@ app.put('/profile', (req, res) => {
     }
 
     // Update user data
-    const { firstName, lastName, role } = req.body;
+    const { firstName, lastName, phone, role } = req.body;
     if (firstName) users[userIndex].firstName = firstName;
     if (lastName) users[userIndex].lastName = lastName;
+    if (phone !== undefined) users[userIndex].phone = phone;
     if (role) users[userIndex].role = role;
     users[userIndex].updatedAt = new Date();
 
@@ -273,6 +295,7 @@ app.put('/profile', (req, res) => {
         email: updatedUser.email,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
+        phone: updatedUser.phone,
         role: updatedUser.role,
         name: `${updatedUser.firstName} ${updatedUser.lastName}`,
         updatedAt: updatedUser.updatedAt

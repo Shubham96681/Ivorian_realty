@@ -3,12 +3,8 @@ import { Link } from 'react-router-dom';
 import { 
   PlusIcon, 
   HomeIcon, 
-  BellIcon,
   CurrencyDollarIcon,
-  EyeIcon,
-  HeartIcon,
   ChatBubbleLeftRightIcon,
-  ChartBarIcon,
   WrenchScrewdriverIcon,
   CalendarIcon,
   MapPinIcon,
