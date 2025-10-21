@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon, 
@@ -9,19 +8,13 @@ import {
   HeartIcon,
   ShareIcon,
   EyeIcon,
-  CheckIcon,
   ShoppingBagIcon,
   AcademicCapIcon,
   BuildingOffice2Icon,
   TruckIcon,
   HomeIcon,
-  UserGroupIcon,
   ShieldCheckIcon,
-  BanknotesIcon,
-  UserIcon,
-  GlobeAltIcon,
-  LanguageIcon,
-  ClockIcon
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 

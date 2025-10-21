@@ -23,12 +23,9 @@ const Register = () => {
 
   const roles = [
     { value: 'buyer', label: 'Buyer', description: 'Looking to buy property' },
-    { value: 'tenant', label: 'Tenant', description: 'Looking to rent property' },
-    { value: 'owner', label: 'Owner', description: 'Want to sell/rent your property' },
+    { value: 'seller', label: 'Seller', description: 'Want to sell your property' },
     { value: 'agent', label: 'Real Estate Agent', description: 'Help clients buy/sell properties' },
-    { value: 'broker', label: 'Real Estate Broker', description: 'Manage real estate business' },
-    { value: 'builder', label: 'Builder', description: 'Construct new properties' },
-    { value: 'developer', label: 'Developer', description: 'Develop real estate projects' }
+    { value: 'admin', label: 'Administrator', description: 'Manage the platform' }
   ];
 
   const handleChange = (e) => {

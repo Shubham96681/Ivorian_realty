@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: ivorian-mongodb-backend
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: ivorian_realty
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_backend_data:/data/db
+    networks:
+      - ivorian-backend-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: ivorian-redis-backend
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_backend_data:/data
+    networks:
+      - ivorian-backend-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./microservices/api-gateway
+      dockerfile: Dockerfile.dev
+    container_name: ivorian-api-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/ivorian_realty?authSource=admin
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./microservices/api-gateway:/app
+      - /app/node_modules
+    networks:
+      - ivorian-backend-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./microservices/auth-service
+      dockerfile: Dockerfile.dev
+    container_name: ivorian-auth-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/ivorian_realty?authSource=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    volumes:
+      - ./microservices/auth-service:/app
+      - /app/node_modules
+    networks:
+      - ivorian-backend-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Property Service
+  property-service:
+    build:
+      context: ./microservices/property-service
+      dockerfile: Dockerfile.dev
+    container_name: ivorian-property-service
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/ivorian_realty?authSource=admin
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./microservices/property-service:/app
+      - /app/node_modules
+    networks:
+      - ivorian-backend-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongodb_backend_data:
+  redis_backend_data:
+
+networks:
+  ivorian-backend-network:
+    driver: bridge

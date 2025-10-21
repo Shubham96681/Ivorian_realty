@@ -1,44 +1,20 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
-  MagnifyingGlassIcon, 
   MapPinIcon, 
   HomeIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon,
-  StarIcon,
-  HeartIcon,
-  ShareIcon,
-  EyeIcon,
-  CheckIcon,
   UserGroupIcon,
   PhoneIcon,
   ChatBubbleLeftRightIcon,
-  ClockIcon,
-  AcademicCapIcon,
   TrophyIcon,
   BuildingOfficeIcon,
   GlobeAltIcon,
   ShieldCheckIcon,
-  BanknotesIcon,
-  UserIcon,
-  CalculatorIcon,
-  DocumentTextIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  MinusIcon,
-  BuildingOffice2Icon,
-  ShoppingBagIcon,
-  TruckIcon,
-  HomeIcon as HouseIcon,
-  UserGroupIcon as PeopleIcon,
   UserGroupIcon as HandshakeIcon,
   AcademicCapIcon as LightBulbIcon,
   ComputerDesktopIcon,
   FaceSmileIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid, StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 const About = () => {
   const [showContactForm, setShowContactForm] = useState(false);

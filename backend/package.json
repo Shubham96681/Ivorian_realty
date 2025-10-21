@@ -1,0 +1,37 @@
+{
+  "name": "@ivorian-realty/backend",
+  "version": "1.0.0",
+  "description": "Ivorian Realty Backend Services",
+  "private": true,
+  "scripts": {
+    "start": "npm run start:infrastructure && npm run start:services",
+    "start:no-docker": "npm run start:services",
+    "start:infrastructure": "cd microservices/infrastructure && docker-compose -f docker-compose.dev.yml up -d",
+    "start:services": "concurrently \"npm run start:api-gateway\" \"npm run start:auth\" \"npm run start:property\"",
+    "start:api-gateway": "cd microservices/api-gateway && npm run dev",
+    "start:auth": "cd microservices/auth-service && npm run dev", 
+    "start:property": "cd microservices/property-service && npm run dev",
+    "install:all": "npm run install:shared && npm run install:services",
+    "install:shared": "cd microservices/shared-lib && npm install",
+    "install:services": "concurrently \"cd microservices/api-gateway && npm install\" \"cd microservices/auth-service && npm install\" \"cd microservices/property-service && npm install\"",
+    "build:all": "npm run build:shared && npm run build:services",
+    "build:shared": "cd microservices/shared-lib && npm run build",
+    "build:services": "concurrently \"cd microservices/api-gateway && npm run build\" \"cd microservices/auth-service && npm run build\" \"cd microservices/property-service && npm run build\"",
+    "stop": "cd microservices/infrastructure && docker-compose -f docker-compose.dev.yml down",
+    "clean": "npm run clean:services && npm run clean:shared",
+    "clean:services": "concurrently \"cd microservices/api-gateway && npm run clean\" \"cd microservices/auth-service && npm run clean\" \"cd microservices/property-service && npm run clean\"",
+    "clean:shared": "cd microservices/shared-lib && npm run clean",
+    "dev": "npm run install:all && npm run start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "backend",
+    "microservices",
+    "real-estate",
+    "api"
+  ],
+  "author": "Ivorian Realty Team",
+  "license": "MIT"
+}

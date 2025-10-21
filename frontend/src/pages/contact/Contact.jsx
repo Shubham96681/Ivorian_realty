@@ -41,7 +41,6 @@ const Contact = () => {
     e.preventDefault();
     try {
       await contactService.submitContactForm(contactForm);
-      // eslint-disable-next-line no-undef
       window.alert('Thank you for your message! We will get back to you soon.');
       setContactForm({
         name: '',
@@ -56,7 +55,6 @@ const Contact = () => {
       setShowContactForm(false);
     } catch (error) {
       console.error('Error submitting contact form:', error);
-      // eslint-disable-next-line no-undef
       window.alert('Failed to send message. Please try again or contact us directly.');
     }
   };
