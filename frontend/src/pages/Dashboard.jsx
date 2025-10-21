@@ -12,12 +12,9 @@ import {
 
 // Import role-specific dashboard components
 import BuyerDashboard from '../components/Dashboard/BuyerDashboard';
-import TenantDashboard from '../components/Dashboard/TenantDashboard';
-import OwnerDashboard from '../components/Dashboard/OwnerDashboard';
+import SellerDashboard from '../components/Dashboard/SellerDashboard';
 import AgentDashboard from '../components/Dashboard/AgentDashboard';
-import BrokerDashboard from '../components/Dashboard/BrokerDashboard';
-import BuilderDashboard from '../components/Dashboard/BuilderDashboard';
-import DeveloperDashboard from '../components/Dashboard/DeveloperDashboard';
+import AdminDashboard from '../components/Dashboard/AdminDashboard';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -35,12 +32,8 @@ const Dashboard = () => {
     
     const roleMessages = {
       buyer: 'Ready to find your dream home?',
-      tenant: 'Looking for the perfect rental?',
-      owner: 'Manage your property listings',
+      seller: 'Manage your property listings',
       agent: 'Help clients find their perfect property',
-      broker: 'Manage your real estate business',
-      builder: 'Showcase your new developments',
-      developer: 'Manage your development projects',
       admin: 'Manage the platform'
     };
     
@@ -56,12 +49,7 @@ const Dashboard = () => {
         { name: 'Saved Properties', href: '/favorites', icon: HeartIcon, color: 'bg-red-500' },
         { name: 'My Inquiries', href: '/inquiries', icon: BellIcon, color: 'bg-green-500' }
       ],
-      tenant: [
-        { name: 'Find Rentals', href: '/rental-search', icon: MagnifyingGlassIcon, color: 'bg-blue-500' },
-        { name: 'Saved Rentals', href: '/favorites', icon: HeartIcon, color: 'bg-red-500' },
-        { name: 'My Applications', href: '/applications', icon: BellIcon, color: 'bg-green-500' }
-      ],
-      owner: [
+      seller: [
         { name: 'List Property', href: '/list-property', icon: PlusIcon, color: 'bg-green-500' },
         { name: 'My Properties', href: '/my-properties', icon: HomeIcon, color: 'bg-blue-500' },
         { name: 'Messages', href: '/messages', icon: BellIcon, color: 'bg-purple-500' }
@@ -70,23 +58,6 @@ const Dashboard = () => {
         { name: 'Add Property', href: '/add-property', icon: PlusIcon, color: 'bg-green-500' },
         { name: 'My Listings', href: '/my-listings', icon: HomeIcon, color: 'bg-blue-500' },
         { name: 'Client Messages', href: '/messages', icon: BellIcon, color: 'bg-purple-500' }
-      ],
-      broker: [
-        { name: 'Add Property', href: '/add-property', icon: PlusIcon, color: 'bg-green-500' },
-        { name: 'My Listings', href: '/my-listings', icon: HomeIcon, color: 'bg-blue-500' },
-        { name: 'Team Management', href: '/team', icon: UserIcon, color: 'bg-purple-500' },
-        { name: 'Analytics', href: '/analytics', icon: CogIcon, color: 'bg-orange-500' }
-      ],
-      builder: [
-        { name: 'Add Development', href: '/add-development', icon: PlusIcon, color: 'bg-green-500' },
-        { name: 'My Projects', href: '/my-projects', icon: HomeIcon, color: 'bg-blue-500' },
-        { name: 'Inquiries', href: '/inquiries', icon: BellIcon, color: 'bg-purple-500' }
-      ],
-      developer: [
-        { name: 'Add Development', href: '/add-development', icon: PlusIcon, color: 'bg-green-500' },
-        { name: 'My Projects', href: '/my-projects', icon: HomeIcon, color: 'bg-blue-500' },
-        { name: 'Project Management', href: '/project-management', icon: CogIcon, color: 'bg-orange-500' },
-        { name: 'Financial Reports', href: '/financial-reports', icon: BellIcon, color: 'bg-purple-500' }
       ],
       admin: [
         { name: 'Manage Users', href: '/admin/users', icon: UserIcon, color: 'bg-red-500' },
@@ -104,18 +75,12 @@ const Dashboard = () => {
     switch (user.role) {
       case 'buyer':
         return <BuyerDashboard />;
-      case 'tenant':
-        return <TenantDashboard />;
-      case 'owner':
-        return <OwnerDashboard />;
+      case 'seller':
+        return <SellerDashboard />;
       case 'agent':
         return <AgentDashboard />;
-      case 'broker':
-        return <BrokerDashboard />;
-      case 'builder':
-        return <BuilderDashboard />;
-      case 'developer':
-        return <DeveloperDashboard />;
+      case 'admin':
+        return <AdminDashboard />;
       default:
         return (
           <div className="bg-white rounded-lg shadow-md p-6">
