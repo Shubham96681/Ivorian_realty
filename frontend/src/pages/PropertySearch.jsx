@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { propertyService } from '../services/propertyService';
 import ComingSoonModal from '../components/UI/ComingSoonModal';
 import { useComingSoon } from '../hooks/useComingSoon';
@@ -22,6 +22,7 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 const PropertySearch = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,13 +31,34 @@ const PropertySearch = () => {
   const { isOpen, modalContent, showComingSoon, hideComingSoon } = useComingSoon();
   
   const [filters, setFilters] = useState({
-    search: '',
-    propertyType: '',
+    search: searchParams.get('location') || '',
+    propertyType: searchParams.get('propertyType') || '',
     priceRange: '',
-    bedrooms: '',
-    location: '',
+    bedrooms: searchParams.get('bedrooms') || '',
+    location: searchParams.get('location') || '',
     sortBy: 'newest'
   });
+
+  // Handle URL parameters on component mount
+  useEffect(() => {
+    const location = searchParams.get('location');
+    const propertyType = searchParams.get('propertyType');
+    const bedrooms = searchParams.get('bedrooms');
+    const bathrooms = searchParams.get('bathrooms');
+    const priceMin = searchParams.get('priceMin');
+    const priceMax = searchParams.get('priceMax');
+    const type = searchParams.get('type'); // buy/rent
+
+    if (location || propertyType || bedrooms || bathrooms || priceMin || priceMax) {
+      setFilters(prev => ({
+        ...prev,
+        search: location || '',
+        propertyType: propertyType || '',
+        bedrooms: bedrooms || '',
+        location: location || ''
+      }));
+    }
+  }, [searchParams]);
 
   // Fetch properties from API
   useEffect(() => {
@@ -60,22 +82,38 @@ const PropertySearch = () => {
         }
         
         // Transform API data to match component expectations
-        const transformedProperties = propertiesData.map(property => ({
-          id: property.id || property._id,
-          title: property.title || 'Property',
-          location: property.location || `${property.address || ''}, ${property.city || ''}`,
-          price: property.price || 0,
-          priceDisplay: property.priceDisplay || `₹${(property.price || 0).toLocaleString()}`,
-          image: property.image || '/images/placeholder-property.jpg',
-          type: property.type || property.propertyType || 'house',
-          bedrooms: property.bedrooms || 0,
-          bathrooms: property.bathrooms || 0,
-          area: property.area || 'N/A',
-          areaDisplay: property.area || 'N/A',
-          postedDate: property.createdAt?.split('T')[0] || property.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-          verified: true,
-          amenities: property.amenities || property.features || []
-        }));
+        const transformedProperties = propertiesData.map(property => {
+          // Handle location object properly
+          let locationString = '';
+          if (typeof property.location === 'string') {
+            locationString = property.location;
+          } else if (property.location && typeof property.location === 'object') {
+            // If location is an object, extract the relevant parts
+            const { address, city, state, zipCode } = property.location;
+            locationString = [address, city, state, zipCode].filter(Boolean).join(', ');
+          } else if (property.address || property.city) {
+            locationString = `${property.address || ''}, ${property.city || ''}`.replace(/^,\s*|,\s*$/g, '');
+          } else {
+            locationString = 'Location not specified';
+          }
+
+          return {
+            id: property.id || property._id,
+            title: property.title || 'Property',
+            location: locationString,
+            price: property.price || 0,
+            priceDisplay: property.priceDisplay || `₹${(property.price || 0).toLocaleString()}`,
+            image: property.image || '/images/property1.jpg',
+            type: property.type || property.propertyType || 'house',
+            bedrooms: property.bedrooms || 0,
+            bathrooms: property.bathrooms || 0,
+            area: property.area || 'N/A',
+            areaDisplay: property.area || 'N/A',
+            postedDate: property.createdAt?.split('T')[0] || property.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+            verified: true,
+            amenities: property.amenities || property.features || []
+          };
+        });
         
         setProperties(transformedProperties);
         setFilteredProperties(transformedProperties);
@@ -90,7 +128,7 @@ const PropertySearch = () => {
             location: 'Cocody, Abidjan',
             price: 500000,
             priceDisplay: '₹500,000',
-            image: '/images/placeholder-property.jpg',
+            image: '/images/property1.jpg',
             type: 'villa',
             bedrooms: 4,
             bathrooms: 3,
@@ -106,7 +144,7 @@ const PropertySearch = () => {
             location: 'Plateau, Abidjan',
             price: 150000,
             priceDisplay: '₹150,000',
-            image: '/images/placeholder-property.jpg',
+            image: '/images/property2.jpg',
             type: 'apartment',
             bedrooms: 2,
             bathrooms: 1,
@@ -122,7 +160,7 @@ const PropertySearch = () => {
             location: 'Yopougon, Abidjan',
             price: 300000,
             priceDisplay: '₹300,000',
-            image: '/images/placeholder-property.jpg',
+            image: '/images/property3.jpg',
             type: 'house',
             bedrooms: 3,
             bathrooms: 2,
@@ -165,6 +203,10 @@ const PropertySearch = () => {
       filtered = filtered.filter(property => property.type === filters.propertyType);
     }
 
+    // Handle price range from URL parameters or filters
+    const priceMin = searchParams.get('priceMin');
+    const priceMax = searchParams.get('priceMax');
+    
     if (filters.priceRange) {
       const [min, max] = filters.priceRange.split('-').map(Number);
       filtered = filtered.filter(property => {
@@ -174,10 +216,16 @@ const PropertySearch = () => {
           return property.price >= min * 100000;
         }
       });
+    } else if (priceMin || priceMax) {
+      filtered = filtered.filter(property => {
+        const minPrice = priceMin ? parseInt(priceMin) : 0;
+        const maxPrice = priceMax ? parseInt(priceMax) : Infinity;
+        return property.price >= minPrice && property.price <= maxPrice;
+      });
     }
 
     if (filters.bedrooms) {
-      filtered = filtered.filter(property => property.bedrooms === parseInt(filters.bedrooms));
+      filtered = filtered.filter(property => property.bedrooms >= parseInt(filters.bedrooms));
     }
 
     if (filters.location) {
@@ -491,7 +539,7 @@ const PropertySearch = () => {
                 <h3 className="text-xl font-semibold mb-2 group-hover:text-blue-600 transition-colors">{property.title}</h3>
                 <p className="text-gray-600 mb-3 flex items-center">
                   <MapPinIcon className="h-4 w-4 mr-1" />
-                  {property.location}
+                  {typeof property.location === 'string' ? property.location : 'Location not specified'}
                 </p>
                 
                 <div className="flex justify-between items-center mb-4">

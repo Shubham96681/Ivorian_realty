@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon
@@ -7,6 +8,7 @@ import ComingSoonModal from '../UI/ComingSoonModal';
 import { useComingSoon } from '../../hooks/useComingSoon';
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('buy');
   const [searchForm, setSearchForm] = useState({
     location: '',
@@ -42,7 +44,7 @@ const HeroSection = () => {
     if (searchForm.bedrooms) searchParams.set('bedrooms', searchForm.bedrooms);
     if (searchForm.bathrooms) searchParams.set('bathrooms', searchForm.bathrooms);
     
-    window.location.href = `/search?${searchParams.toString()}`;
+    navigate(`/search?${searchParams.toString()}`);
   };
 
   const clearForm = () => {
