@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon, 
   StarIcon,
   HeartIcon,
   ShareIcon,
-  EyeIcon,
   CheckIcon,
   UserGroupIcon,
   PhoneIcon,
@@ -15,7 +13,6 @@ import {
   AcademicCapIcon,
   TrophyIcon,
   BuildingOfficeIcon,
-  CurrencyDollarIcon,
   ChartBarIcon,
   GlobeAltIcon,
   HomeIcon

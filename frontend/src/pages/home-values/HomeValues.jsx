@@ -1,34 +1,20 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon, 
   HomeIcon,
-  CurrencyDollarIcon,
   ChartBarIcon,
-  StarIcon,
   HeartIcon,
   ShareIcon,
   EyeIcon,
-  CheckIcon,
-  UserGroupIcon,
-  PhoneIcon,
-  ChatBubbleLeftRightIcon,
-  ClockIcon,
-  AcademicCapIcon,
   TrophyIcon,
-  BuildingOfficeIcon,
   GlobeAltIcon,
-  ShieldCheckIcon,
-  BanknotesIcon,
-  UserIcon,
   CalculatorIcon,
   DocumentTextIcon,
   ArrowUpIcon,
-  ArrowDownIcon,
-  MinusIcon
+  ArrowDownIcon
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 const HomeValues = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);

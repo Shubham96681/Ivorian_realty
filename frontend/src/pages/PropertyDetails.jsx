@@ -78,12 +78,10 @@ const PropertyDetails = () => {
     e.preventDefault();
     try {
       await propertyService.contactPropertyOwner(id, contactForm);
-      // eslint-disable-next-line no-undef
       window.alert('Message sent successfully!');
       setShowContactForm(false);
       setContactForm(prev => ({ ...prev, message: '' }));
     } catch {
-      // eslint-disable-next-line no-undef
       window.alert('Failed to send message. Please try again.');
     }
   };
@@ -102,7 +100,6 @@ const PropertyDetails = () => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      // eslint-disable-next-line no-undef
       window.alert('Link copied to clipboard!');
     }
   };

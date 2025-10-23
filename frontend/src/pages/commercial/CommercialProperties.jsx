@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon, 
   BuildingOfficeIcon, 
-  CurrencyDollarIcon,
+  CurrencyDollarIcon, 
   StarIcon,
   HeartIcon,
   ShareIcon,
   EyeIcon,
-  CheckIcon,
   ShoppingBagIcon,
   AcademicCapIcon,
   BuildingOffice2Icon,

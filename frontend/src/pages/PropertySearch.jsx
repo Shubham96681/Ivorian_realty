@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { propertyService } from '../services/propertyService';
 import ComingSoonModal from '../components/UI/ComingSoonModal';
@@ -22,7 +22,7 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 const PropertySearch = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,6 @@ const PropertySearch = () => {
     const bathrooms = searchParams.get('bathrooms');
     const priceMin = searchParams.get('priceMin');
     const priceMax = searchParams.get('priceMax');
-    const type = searchParams.get('type'); // buy/rent
 
     if (location || propertyType || bedrooms || bathrooms || priceMin || priceMax) {
       setFilters(prev => ({
@@ -189,7 +188,7 @@ const PropertySearch = () => {
     }));
   };
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...properties];
 
     if (filters.search) {
@@ -253,11 +252,11 @@ const PropertySearch = () => {
     }
 
     setFilteredProperties(filtered);
-  };
+  }, [filters, properties, searchParams, setFilteredProperties]);
 
   useEffect(() => {
     applyFilters();
-  }, [filters, properties]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters, properties, applyFilters]);
 
   const toggleFavorite = async (propertyId) => {
     try {
@@ -268,7 +267,6 @@ const PropertySearch = () => {
           newFavorites.delete(propertyId);
           return newFavorites;
         });
-        // eslint-disable-next-line no-undef
         window.alert('Property removed from favorites');
       } else {
         await propertyService.saveToFavorites(propertyId);
@@ -277,12 +275,10 @@ const PropertySearch = () => {
           newFavorites.add(propertyId);
           return newFavorites;
         });
-        // eslint-disable-next-line no-undef
         window.alert('Property added to favorites');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      // eslint-disable-next-line no-undef
       window.alert('Failed to update favorites. Please try again.');
     }
   };
@@ -518,7 +514,6 @@ const PropertySearch = () => {
                         });
                       } else {
                         navigator.clipboard.writeText(window.location.origin + `/property/${property.id}`);
-                        // eslint-disable-next-line no-undef
                         window.alert('Property link copied to clipboard!');
                       }
                     }}

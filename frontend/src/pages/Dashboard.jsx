@@ -1,13 +1,8 @@
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { 
-  HomeIcon, 
   UserIcon, 
-  HeartIcon, 
-  BellIcon,
-  CogIcon,
-  PlusIcon,
-  MagnifyingGlassIcon
+  CogIcon
 } from '@heroicons/react/24/outline';
 
 // Import role-specific dashboard components
@@ -40,34 +35,8 @@ const Dashboard = () => {
     return roleMessages[user.role] || 'Welcome to your dashboard!';
   };
 
-  const getQuickActions = () => {
-    if (!user) return [];
-
-    const actions = {
-      buyer: [
-        { name: 'Search Properties', href: '/search', icon: MagnifyingGlassIcon, color: 'bg-blue-500' },
-        { name: 'Saved Properties', href: '/favorites', icon: HeartIcon, color: 'bg-red-500' },
-        { name: 'My Inquiries', href: '/inquiries', icon: BellIcon, color: 'bg-green-500' }
-      ],
-      seller: [
-        { name: 'List Property', href: '/list-property', icon: PlusIcon, color: 'bg-green-500' },
-        { name: 'My Properties', href: '/my-properties', icon: HomeIcon, color: 'bg-blue-500' },
-        { name: 'Messages', href: '/messages', icon: BellIcon, color: 'bg-purple-500' }
-      ],
-      agent: [
-        { name: 'Add Property', href: '/add-property', icon: PlusIcon, color: 'bg-green-500' },
-        { name: 'My Listings', href: '/my-listings', icon: HomeIcon, color: 'bg-blue-500' },
-        { name: 'Client Messages', href: '/messages', icon: BellIcon, color: 'bg-purple-500' }
-      ],
-      admin: [
-        { name: 'Manage Users', href: '/admin/users', icon: UserIcon, color: 'bg-red-500' },
-        { name: 'Manage Properties', href: '/admin/properties', icon: HomeIcon, color: 'bg-blue-500' },
-        { name: 'System Settings', href: '/admin/settings', icon: CogIcon, color: 'bg-gray-500' }
-      ]
-    };
-
-    return actions[user.role] || [];
-  };
+  // Quick actions were previously generated here. If you need role-based quick actions
+  // reintroduce this helper to return an array of action items for the UI.
 
   const renderRoleSpecificDashboard = () => {
     if (!user) return null;

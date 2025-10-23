@@ -1,47 +1,22 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
-  MapPinIcon, 
-  HomeIcon,
-  CurrencyDollarIcon,
+  MapPinIcon,
   ChartBarIcon,
-  StarIcon,
   ShareIcon,
-  EyeIcon,
-  CheckIcon,
-  UserGroupIcon,
   PhoneIcon,
-  ChatBubbleLeftRightIcon,
-  ClockIcon,
-  AcademicCapIcon,
   TrophyIcon,
   BuildingOfficeIcon,
   GlobeAltIcon,
-  ShieldCheckIcon,
-  BanknotesIcon,
   UserIcon,
-  CalculatorIcon,
   DocumentTextIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  MinusIcon,
-  BuildingOffice2Icon,
-  ShoppingBagIcon,
-  TruckIcon,
-  HomeIcon as HouseIcon,
-  UserGroupIcon as PeopleIcon,
   CalendarDaysIcon,
   NewspaperIcon,
-  TagIcon,
   ArrowRightIcon,
   BookOpenIcon,
-  SpeakerWaveIcon,
-  PlayIcon,
   PhotoIcon,
   ComputerDesktopIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 const Newsroom = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AcademicCapIcon, MapPinIcon, StarIcon, MagnifyingGlassIcon, CheckIcon, XMarkIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { AcademicCapIcon, StarIcon, MagnifyingGlassIcon, CheckIcon, XMarkIcon, HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 const Schools = () => {
