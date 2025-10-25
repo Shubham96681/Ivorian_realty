@@ -1,8 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { 
-  StarIcon,
-  HomeIcon,
   CurrencyDollarIcon,
   ShieldCheckIcon,
   UserGroupIcon,

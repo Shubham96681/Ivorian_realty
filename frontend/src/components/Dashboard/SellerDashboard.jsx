@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { 
-  HomeIcon, 
   PlusIcon, 
   EyeIcon, 
   PencilIcon, 
   TrashIcon,
   ChartBarIcon,
-  BellIcon,
-  CurrencyDollarIcon
+  BellIcon
 } from '@heroicons/react/24/outline';
 
 const SellerDashboard = () => {

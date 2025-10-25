@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { 
   PlusIcon, 
   HomeIcon, 
-  BellIcon,
   UserIcon,
   CurrencyDollarIcon,
   EyeIcon,

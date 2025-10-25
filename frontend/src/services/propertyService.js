@@ -1,4 +1,4 @@
-import api, { propertyAPI, fileAPI } from './api';
+import api from './api';
 
 export const propertyService = {
   // Get all properties with filters

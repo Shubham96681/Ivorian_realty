@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { 
   MapPinIcon,
   HomeIcon,
-  CurrencyDollarIcon,
   ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 
