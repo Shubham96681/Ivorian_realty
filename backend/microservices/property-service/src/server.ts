@@ -6,12 +6,17 @@ import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import winston from 'winston';
+import { PortManager, getDatabase } from '@ivorian-realty/shared-lib';
+import { Collection } from 'mongodb';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const portManager = PortManager.getInstance();
+
+// Database collection
+let propertiesCollection: Collection;
 
 // Configure logger
 const logger = winston.createLogger({
@@ -52,103 +57,50 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Mock property database (in production, this would be MongoDB)
-const properties: any[] = [
-  {
-    id: uuidv4(),
-    title: 'Beautiful Family Home',
-    description: 'A spacious 4-bedroom family home with a large backyard and modern amenities.',
-    price: 450000,
-    location: {
-      address: '123 Main Street',
-      city: 'Abidjan',
-      state: 'Abidjan',
-      zipCode: '00225',
-      coordinates: {
-        lat: 5.3599,
-        lng: -4.0083
-      }
-    },
-    type: 'house',
-    bedrooms: 4,
-    bathrooms: 3,
-    squareFeet: 2500,
-    images: [
-      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
-      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800'
-    ],
-    agentId: 'agent-1',
-    status: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: uuidv4(),
-    title: 'Modern Apartment in City Center',
-    description: 'Contemporary 2-bedroom apartment with city views and premium finishes.',
-    price: 280000,
-    location: {
-      address: '456 Business District',
-      city: 'Abidjan',
-      state: 'Abidjan',
-      zipCode: '00225',
-      coordinates: {
-        lat: 5.3600,
-        lng: -4.0080
-      }
-    },
-    type: 'apartment',
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1200,
-    images: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
-      'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800'
-    ],
-    agentId: 'agent-2',
-    status: 'available',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
+// Database will be initialized in startServer function
+// Sample properties will be inserted if collection is empty
 
 // Get all properties
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 10, type, minPrice, maxPrice, bedrooms } = req.query;
     
-    let filteredProperties = [...properties];
+    // Build filter query
+    const filter: any = {};
     
-    // Apply filters
     if (type) {
-      filteredProperties = filteredProperties.filter(p => p.type === type);
+      filter.type = type;
     }
     
-    if (minPrice) {
-      filteredProperties = filteredProperties.filter(p => p.price >= parseInt(minPrice as string));
-    }
-    
-    if (maxPrice) {
-      filteredProperties = filteredProperties.filter(p => p.price <= parseInt(maxPrice as string));
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseInt(minPrice as string);
+      if (maxPrice) filter.price.$lte = parseInt(maxPrice as string);
     }
     
     if (bedrooms) {
-      filteredProperties = filteredProperties.filter(p => p.bedrooms >= parseInt(bedrooms as string));
+      filter.bedrooms = { $gte: parseInt(bedrooms as string) };
     }
     
-    // Pagination
-    const startIndex = (parseInt(page as string) - 1) * parseInt(limit as string);
-    const endIndex = startIndex + parseInt(limit as string);
-    const paginatedProperties = filteredProperties.slice(startIndex, endIndex);
+    // Get total count
+    const total = await propertiesCollection.countDocuments(filter);
+    
+    // Get paginated results
+    const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const properties = await propertiesCollection
+      .find(filter)
+      .skip(skip)
+      .limit(parseInt(limit as string))
+      .toArray();
     
     res.json({
       success: true,
-      data: paginatedProperties,
+      data: properties,
       pagination: {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
-        total: filteredProperties.length,
-        totalPages: Math.ceil(filteredProperties.length / parseInt(limit as string))
+        total,
+        totalPages: Math.ceil(total / parseInt(limit as string))
       }
     });
     
@@ -162,10 +114,10 @@ app.get('/', (req, res) => {
 });
 
 // Get property by ID
-app.get('/:id', (req, res) => {
+app.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const property = properties.find(p => p.id === id);
+    const property = await propertiesCollection.findOne({ id });
     
     if (!property) {
       return res.status(404).json({
@@ -189,7 +141,7 @@ app.get('/:id', (req, res) => {
 });
 
 // Create new property
-app.post('/', (req, res) => {
+app.post('/', async (req, res) => {
   try {
     const {
       title,
@@ -229,7 +181,7 @@ app.post('/', (req, res) => {
       updatedAt: new Date()
     };
     
-    properties.push(property);
+    await propertiesCollection.insertOne(property);
     
     res.status(201).json({
       success: true,
@@ -247,48 +199,47 @@ app.post('/', (req, res) => {
 });
 
 // Search properties
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
   try {
     const { q, city, type, minPrice, maxPrice } = req.query;
     
-    let filteredProperties = [...properties];
+    // Build filter query
+    const filter: any = {};
     
     // Text search
     if (q) {
       const searchTerm = (q as string).toLowerCase();
-      filteredProperties = filteredProperties.filter(p => 
-        p.title.toLowerCase().includes(searchTerm) ||
-        p.description.toLowerCase().includes(searchTerm) ||
-        p.location.city.toLowerCase().includes(searchTerm) ||
-        p.location.address.toLowerCase().includes(searchTerm)
-      );
+      filter.$or = [
+        { title: { $regex: searchTerm, $options: 'i' } },
+        { description: { $regex: searchTerm, $options: 'i' } },
+        { 'location.city': { $regex: searchTerm, $options: 'i' } },
+        { 'location.address': { $regex: searchTerm, $options: 'i' } }
+      ];
     }
     
     // City filter
     if (city) {
-      filteredProperties = filteredProperties.filter(p => 
-        p.location.city.toLowerCase() === (city as string).toLowerCase()
-      );
+      filter['location.city'] = { $regex: new RegExp(`^${city}$`, 'i') };
     }
     
     // Type filter
     if (type) {
-      filteredProperties = filteredProperties.filter(p => p.type === type);
+      filter.type = type;
     }
     
     // Price range filter
-    if (minPrice) {
-      filteredProperties = filteredProperties.filter(p => p.price >= parseInt(minPrice as string));
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseInt(minPrice as string);
+      if (maxPrice) filter.price.$lte = parseInt(maxPrice as string);
     }
     
-    if (maxPrice) {
-      filteredProperties = filteredProperties.filter(p => p.price <= parseInt(maxPrice as string));
-    }
+    const properties = await propertiesCollection.find(filter).toArray();
     
     res.json({
       success: true,
-      data: filteredProperties,
-      total: filteredProperties.length
+      data: properties,
+      total: properties.length
     });
     
   } catch (error) {
@@ -317,10 +268,109 @@ app.use('*', (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`Property service server running on port ${PORT}`);
-  console.log(`🏠 Property service running on http://localhost:${PORT}`);
-});
+// Initialize and start server
+async function startServer() {
+  try {
+    // Initialize port configuration
+    await portManager.initializePorts();
+    
+    // Initialize MongoDB connection
+    const db = await getDatabase();
+    propertiesCollection = db.collection('properties');
+    
+    // Create indexes for better performance
+    await propertiesCollection.createIndex({ id: 1 }, { unique: true });
+    await propertiesCollection.createIndex({ type: 1 });
+    await propertiesCollection.createIndex({ price: 1 });
+    await propertiesCollection.createIndex({ 'location.city': 1 });
+    await propertiesCollection.createIndex({ title: 'text', description: 'text' });
+    
+    // Insert sample data if collection is empty
+    const count = await propertiesCollection.countDocuments();
+    if (count === 0) {
+      const sampleProperties = [
+        {
+          id: uuidv4(),
+          title: 'Beautiful Family Home',
+          description: 'A spacious 4-bedroom family home with a large backyard and modern amenities.',
+          price: 450000,
+          location: {
+            address: '123 Main Street',
+            city: 'Abidjan',
+            state: 'Abidjan',
+            zipCode: '00225',
+            coordinates: {
+              lat: 5.3599,
+              lng: -4.0083
+            }
+          },
+          type: 'house',
+          bedrooms: 4,
+          bathrooms: 3,
+          squareFeet: 2500,
+          images: [
+            'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+            'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800'
+          ],
+          agentId: 'agent-1',
+          status: 'available',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: uuidv4(),
+          title: 'Modern Apartment in City Center',
+          description: 'Contemporary 2-bedroom apartment with city views and premium finishes.',
+          price: 280000,
+          location: {
+            address: '456 Business District',
+            city: 'Abidjan',
+            state: 'Abidjan',
+            zipCode: '00225',
+            coordinates: {
+              lat: 5.3600,
+              lng: -4.0080
+            }
+          },
+          type: 'apartment',
+          bedrooms: 2,
+          bathrooms: 2,
+          squareFeet: 1200,
+          images: [
+            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
+            'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800'
+          ],
+          agentId: 'agent-2',
+          status: 'available',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+      
+      await propertiesCollection.insertMany(sampleProperties);
+      console.log('✅ Sample properties inserted');
+    }
+    
+    console.log('✅ MongoDB connected and indexes created');
+    
+    // Get the assigned port for Property Service
+    const PORT = portManager.getPort('property-service') || 3002;
+    
+    // Start server
+    app.listen(PORT, () => {
+      logger.info(`Property service server running on port ${PORT}`);
+      console.log(`🏠 Property service running on http://localhost:${PORT}`);
+      console.log(`🗄️ MongoDB: ${process.env.MONGODB_URI || 'mongodb://localhost:27017'}`);
+    });
+
+  } catch (error) {
+    logger.error('Failed to start Property Service:', error);
+    console.error('❌ MongoDB connection failed. Make sure MongoDB is running.');
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
 
 export default app;

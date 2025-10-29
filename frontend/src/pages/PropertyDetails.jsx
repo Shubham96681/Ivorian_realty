@@ -21,6 +21,16 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 import ErrorMessage from '../components/UI/ErrorMessage';
 
 const PropertyDetails = () => {
+  // Build absolute image URLs for backend-served uploads
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
+  const toImageUrl = (src) => {
+    if (!src) return '/api/placeholder/800/600';
+    if (/^https?:\/\//i.test(src)) return src;
+    if (src.startsWith('/uploads')) return `${API_ORIGIN}${src}`;
+    if (src.startsWith('uploads')) return `${API_ORIGIN}/${src}`;
+    return src;
+  };
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -41,9 +51,20 @@ const PropertyDetails = () => {
       try {
         setLoading(true);
         setError(null);
-        const propertyData = await propertyService.getProperty(id);
-        setProperty(propertyData);
+        const response = await propertyService.getProperty(id);
+        console.log('Property detail API response:', response);
+        
+        // Handle the API response structure
+        if (response.success && response.data) {
+          setProperty(response.data);
+        } else if (response.data) {
+          // Fallback if response structure is different
+          setProperty(response.data);
+        } else {
+          setProperty(response);
+        }
       } catch (error) {
+        console.error('Error fetching property:', error);
         setError(error.message || 'Failed to load property details');
       } finally {
         setLoading(false);
@@ -192,9 +213,21 @@ const PropertyDetails = () => {
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
               <div className="aspect-w-16 aspect-h-9">
                 <img
-                  src={property.image || '/api/placeholder/800/600'}
+                  src={(() => {
+                    if (Array.isArray(property.images) && property.images.length > 0) {
+                      return toImageUrl(property.images[0]);
+                    } else if (typeof property.images === 'string' && property.images.trim()) {
+                      return toImageUrl(property.images.split(' ')[0]);
+                    } else if (property.image) {
+                      return toImageUrl(property.image);
+                    }
+                    return '/api/placeholder/800/600';
+                  })()}
                   alt={property.title}
                   className="w-full h-64 object-cover"
+                  onError={(e) => {
+                    e.target.src = '/api/placeholder/800/600';
+                  }}
                 />
               </div>
             </div>
@@ -206,12 +239,21 @@ const PropertyDetails = () => {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">{property.title}</h1>
                   <div className="flex items-center text-gray-600 mb-4">
                     <MapPinIcon className="h-5 w-5 mr-2" />
-                    <span>{property.address}, {property.city}, {property.state}</span>
+                    <span>{(() => {
+                      if (property.location && typeof property.location === 'object') {
+                        const { address, city, state } = property.location;
+                        return [address, city, state].filter(Boolean).join(', ');
+                      } else if (typeof property.location === 'string') {
+                        return property.location;
+                      } else {
+                        return `${property.address || ''}, ${property.city || ''}, ${property.state || ''}`.replace(/^,\s*|,\s*$/g, '');
+                      }
+                    })()}</span>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-blue-600">
-                    {property.priceDisplay || `₹${property.price?.toLocaleString()}`}
+                    {property.priceDisplay || `FCFA ${property.price?.toLocaleString()}`}
                   </div>
                   {property.listingType && (
                     <span className="inline-block bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full mt-1">
@@ -312,11 +354,11 @@ const PropertyDetails = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Property ID</span>
-                  <span className="font-medium">#{property.id}</span>
+                  <span className="font-medium">#{property._id || property.id}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Property Type</span>
-                  <span className="font-medium capitalize">{property.propertyType || 'N/A'}</span>
+                  <span className="font-medium capitalize">{property.type || property.propertyType || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status</span>

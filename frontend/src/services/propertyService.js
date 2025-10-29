@@ -168,5 +168,35 @@ export const propertyService = {
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch favorite properties');
     }
+  },
+
+  // Get properties pending approval (admin only)
+  getPendingProperties: async () => {
+    try {
+      const response = await api.get('/properties/pending');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch pending properties');
+    }
+  },
+
+  // Approve property (admin only)
+  approveProperty: async (propertyId, approvedBy) => {
+    try {
+      const response = await api.put(`/properties/${propertyId}/approve`, { approvedBy });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to approve property');
+    }
+  },
+
+  // Reject property (admin only)
+  rejectProperty: async (propertyId, rejectedBy, rejectionReason) => {
+    try {
+      const response = await api.put(`/properties/${propertyId}/reject`, { rejectedBy, rejectionReason });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to reject property');
+    }
   }
 };

@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { HomeIcon, PhoneIcon, EnvelopeIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 const Footer = () => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -13,8 +15,7 @@ const Footer = () => {
               <span className="text-2xl font-bold">Ivorian Realty</span>
             </div>
             <p className="text-gray-300 mb-6">
-              Your trusted partner for all real estate needs. 
-              Find your dream home, list your property, or connect with verified agents.
+              {t('home.footer.description')}
             </p>
             <div className="space-y-2 mb-6">
               <div className="flex items-center space-x-2">
@@ -53,48 +54,48 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('home.footer.company')}</h3>
             <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-300 hover:text-white">About Us</Link></li>
-              <li><Link to="/newsroom" className="text-gray-300 hover:text-white">Newsroom</Link></li>
-              <li><Link to="/help" className="text-gray-300 hover:text-white">Help Center</Link></li>
-              <li><Link to="/contact" className="text-gray-300 hover:text-white">Contact Us</Link></li>
+              <li><Link to="/about" className="text-gray-300 hover:text-white">{t('home.footer.aboutUs')}</Link></li>
+              <li><Link to="/newsroom" className="text-gray-300 hover:text-white">{t('home.footer.newsroom')}</Link></li>
+              <li><Link to="/help" className="text-gray-300 hover:text-white">{t('home.footer.helpCenter')}</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-white">{t('home.footer.contactUs')}</Link></li>
             </ul>
           </div>
 
           {/* Real Estate */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Real Estate</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('home.footer.realEstate')}</h3>
             <ul className="space-y-2">
-              <li><Link to="/texas-real-estate" className="text-gray-300 hover:text-white">Real Estate</Link></li>
-              <li><Link to="/counties" className="text-gray-300 hover:text-white">Counties</Link></li>
-              <li><Link to="/cities" className="text-gray-300 hover:text-white">Cities</Link></li>
-              <li><Link to="/neighborhoods" className="text-gray-300 hover:text-white">Neighborhoods</Link></li>
-              <li><Link to="/zip-codes" className="text-gray-300 hover:text-white">Zip Codes</Link></li>
+              <li><Link to="/texas-real-estate" className="text-gray-300 hover:text-white">{t('home.footer.realEstate')}</Link></li>
+              <li><Link to="/counties" className="text-gray-300 hover:text-white">{t('home.footer.counties')}</Link></li>
+              <li><Link to="/cities" className="text-gray-300 hover:text-white">{t('home.footer.cities')}</Link></li>
+              <li><Link to="/neighborhoods" className="text-gray-300 hover:text-white">{t('home.footer.neighborhoods')}</Link></li>
+              <li><Link to="/zip-codes" className="text-gray-300 hover:text-white">{t('home.footer.zipCodes')}</Link></li>
             </ul>
           </div>
 
           {/* Resources */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('home.footer.resources')}</h3>
             <ul className="space-y-2">
-              <li><Link to="/real-insight" className="text-gray-300 hover:text-white">RealInsight</Link></li>
-              <li><Link to="/ask-a-pro" className="text-gray-300 hover:text-white">Ask a Pro</Link></li>
-              <li><Link to="/knowledge-base" className="text-gray-300 hover:text-white">Knowledge Base</Link></li>
-              <li><Link to="/knowledge-videos" className="text-gray-300 hover:text-white">Knowledge Videos</Link></li>
-              <li><Link to="/service-providers" className="text-gray-300 hover:text-white">Service Providers</Link></li>
+              <li><Link to="/real-insight" className="text-gray-300 hover:text-white">{t('home.footer.realInsight')}</Link></li>
+              <li><Link to="/ask-a-pro" className="text-gray-300 hover:text-white">{t('home.footer.askPro')}</Link></li>
+              <li><Link to="/knowledge-base" className="text-gray-300 hover:text-white">{t('home.footer.knowledgeBase')}</Link></li>
+              <li><Link to="/knowledge-videos" className="text-gray-300 hover:text-white">{t('home.footer.knowledgeVideos')}</Link></li>
+              <li><Link to="/service-providers" className="text-gray-300 hover:text-white">{t('home.footer.serviceProviders')}</Link></li>
             </ul>
           </div>
 
           {/* Product */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Product</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('home.footer.product')}</h3>
             <ul className="space-y-2">
-              <li><Link to="/mobile-app" className="text-gray-300 hover:text-white">Mobile App</Link></li>
-              <li><Link to="/rental-search" className="text-gray-300 hover:text-white">Rentals</Link></li>
-              <li><Link to="/find-a-pro" className="text-gray-300 hover:text-white">Find a Pro</Link></li>
-              <li><Link to="/open-houses" className="text-gray-300 hover:text-white">Open Houses</Link></li>
-              <li><Link to="/mls-platinum" className="text-gray-300 hover:text-white">MLS Platinum</Link></li>
+              <li><Link to="/mobile-app" className="text-gray-300 hover:text-white">{t('home.footer.mobileApp')}</Link></li>
+              <li><Link to="/rental-search" className="text-gray-300 hover:text-white">{t('home.footer.rentals')}</Link></li>
+              <li><Link to="/find-a-pro" className="text-gray-300 hover:text-white">{t('home.footer.findPro')}</Link></li>
+              <li><Link to="/open-houses" className="text-gray-300 hover:text-white">{t('home.footer.openHouses')}</Link></li>
+              <li><Link to="/mls-platinum" className="text-gray-300 hover:text-white">{t('home.footer.mlsPlatinum')}</Link></li>
             </ul>
           </div>
         </div>
@@ -102,17 +103,17 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-300 text-sm">
-              © 2025 Ivorian Realty. All rights reserved.
+              {t('home.footer.copyright')}
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-300 hover:text-white text-sm">
-                Privacy Policy
+                {t('home.footer.privacyPolicy')}
               </Link>
               <Link to="/terms" className="text-gray-300 hover:text-white text-sm">
-                Terms of Service
+                {t('home.footer.termsOfService')}
               </Link>
               <Link to="/contact" className="text-gray-300 hover:text-white text-sm">
-                Contact Us
+                {t('home.footer.contactUs')}
               </Link>
             </div>
           </div>

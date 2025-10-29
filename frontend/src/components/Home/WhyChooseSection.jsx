@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   CurrencyDollarIcon,
   ShieldCheckIcon,
@@ -11,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const WhyChooseSection = () => {
+  const { t } = useTranslation();
   const handleStartSearch = () => {
     // Scroll to search section or navigate to search page
     const searchSection = document.getElementById('search-section');
@@ -29,8 +31,8 @@ const WhyChooseSection = () => {
   const features = [
     {
       icon: ShieldCheckIcon,
-      title: "Verified Properties",
-      description: "All properties are thoroughly verified by our expert team to ensure authenticity and quality",
+      title: t('home.whyChoose.verifiedProperties'),
+      description: t('home.whyChoose.verifiedDescription'),
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-500/10",
       borderColor: "border-blue-200/50",
@@ -38,8 +40,8 @@ const WhyChooseSection = () => {
     },
     {
       icon: UserGroupIcon,
-      title: "Expert Guidance",
-      description: "Get personalized advice from our experienced real estate professionals and market experts",
+      title: t('home.whyChoose.expertGuidance'),
+      description: t('home.whyChoose.expertDescription'),
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-500/10",
       borderColor: "border-green-200/50",
@@ -47,8 +49,8 @@ const WhyChooseSection = () => {
     },
     {
       icon: CurrencyDollarIcon,
-      title: "Best Deals",
-      description: "Access exclusive property deals and competitive pricing with our extensive network",
+      title: t('home.whyChoose.bestDeals'),
+      description: t('home.whyChoose.dealsDescription'),
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-500/10",
       borderColor: "border-purple-200/50",
@@ -56,8 +58,8 @@ const WhyChooseSection = () => {
     },
     {
       icon: ClockIcon,
-      title: "24/7 Support",
-      description: "Round-the-clock customer support to assist you with all your real estate needs",
+      title: t('home.whyChoose.support24'),
+      description: t('home.whyChoose.supportDescription'),
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-500/10",
       borderColor: "border-orange-200/50",
@@ -65,8 +67,8 @@ const WhyChooseSection = () => {
     },
     {
       icon: MapPinIcon,
-      title: "Wide Coverage",
-      description: "Properties available across major cities and emerging markets throughout India",
+      title: t('home.whyChoose.wideCoverage'),
+      description: t('home.whyChoose.coverageDescription'),
       color: "from-indigo-500 to-indigo-600",
       bgColor: "bg-indigo-500/10",
       borderColor: "border-indigo-200/50",
@@ -74,8 +76,8 @@ const WhyChooseSection = () => {
     },
     {
       icon: HeartIcon,
-      title: "Customer First",
-      description: "Your satisfaction is our priority with dedicated support throughout your journey",
+      title: t('home.whyChoose.customerFirst'),
+      description: t('home.whyChoose.customerDescription'),
       color: "from-pink-500 to-pink-600",
       bgColor: "bg-pink-500/10",
       borderColor: "border-pink-200/50",
@@ -103,12 +105,12 @@ const WhyChooseSection = () => {
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Why Choose Ivorian Realty?
+              {t('home.whyChoose.title')}
             </span>
           </h2>
           
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Experience the difference with our comprehensive real estate services designed to make your property journey seamless and successful
+            {t('home.whyChoose.subtitle')}
           </p>
         </div>
 
@@ -157,23 +159,23 @@ const WhyChooseSection = () => {
           <div className="bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-2xl p-8 sm:p-12 shadow-xl">
             <div className="max-w-4xl mx-auto">
               <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                Ready to Find Your Dream Property?
+                {t('home.whyChoose.ctaTitle')}
               </h3>
               <p className="text-lg text-gray-600 mb-8">
-                Join thousands of satisfied customers who have found their perfect home with Ivorian Realty
+                {t('home.whyChoose.ctaSubtitle')}
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
                 <button 
                   onClick={handleStartSearch}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
-                  Start Your Search
+                  {t('home.hero.startSearch')}
                 </button>
                 <button 
                   onClick={handleGetExpertAdvice}
                   className="bg-white/80 backdrop-blur-sm border border-blue-200 text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
                 >
-                  Get Expert Advice
+                  {t('home.featuredProperties.getAdvice')}
                 </button>
               </div>
             </div>

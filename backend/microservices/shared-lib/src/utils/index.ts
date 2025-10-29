@@ -28,3 +28,6 @@ export const validatePhoneNumber = (phone: string): boolean => {
   const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
   return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
 };
+
+// Port management utilities
+export * from './portFinder';

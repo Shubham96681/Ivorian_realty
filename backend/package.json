@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm run start:infrastructure && npm run start:services",
     "start:no-docker": "npm run start:services",
+    "start:dynamic": "node ../scripts/start-with-dynamic-ports.js",
     "start:infrastructure": "cd microservices/infrastructure && docker-compose -f docker-compose.dev.yml up -d",
     "start:services": "concurrently \"npm run start:api-gateway\" \"npm run start:auth\" \"npm run start:property\"",
     "start:api-gateway": "cd microservices/api-gateway && npm run dev",
@@ -21,7 +22,8 @@
     "clean": "npm run clean:services && npm run clean:shared",
     "clean:services": "concurrently \"cd microservices/api-gateway && npm run clean\" \"cd microservices/auth-service && npm run clean\" \"cd microservices/property-service && npm run clean\"",
     "clean:shared": "cd microservices/shared-lib && npm run clean",
-    "dev": "npm run install:all && npm run start"
+    "dev": "npm run install:all && npm run start",
+    "ports": "node ../scripts/show-ports.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   BuildingOfficeIcon,
   CurrencyDollarIcon,
@@ -8,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const MarketOverview = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 relative overflow-hidden">
       {/* Background decorative elements */}
@@ -28,12 +30,12 @@ const MarketOverview = () => {
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Explore Real Estate Markets
+              {t('home.marketOverview.title')}
             </span>
           </h2>
           
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Discover properties and real estate opportunities across the globe with our comprehensive market insights
+            {t('home.marketOverview.subtitle')}
           </p>
         </div>
         
@@ -51,10 +53,10 @@ const MarketOverview = () => {
                   <div className="text-xs text-gray-500">Properties</div>
                 </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Commercial Properties</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">View commercial properties for sale or lease with detailed market insights</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">{t('home.marketOverview.commercialProperties')}</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">{t('home.marketOverview.commercialDescription')}</p>
               <Link to="/commercial" className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 group-hover:translate-x-1 transition-all duration-300">
-                Explore Commercial →
+                {t('home.marketOverview.commercialProperties')} →
               </Link>
             </div>
           </div>
@@ -72,10 +74,10 @@ const MarketOverview = () => {
                   <div className="text-xs text-gray-500">Countries</div>
                 </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Global Properties</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">Find properties around the globe with international market expertise</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">{t('home.marketOverview.globalProperties')}</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">{t('home.marketOverview.globalDescription')}</p>
               <Link to="/global" className="inline-flex items-center text-sm font-semibold text-green-600 hover:text-green-700 group-hover:translate-x-1 transition-all duration-300">
-                Explore Global →
+                {t('home.marketOverview.globalProperties')} →
               </Link>
             </div>
           </div>
@@ -93,10 +95,10 @@ const MarketOverview = () => {
                   <div className="text-xs text-gray-500">Professionals</div>
                 </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Agents & Brokers</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">Get help from thousands of available professionals and experts</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">{t('home.marketOverview.agentsBrokers')}</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">{t('home.marketOverview.agentsDescription')}</p>
               <Link to="/agents" className="inline-flex items-center text-sm font-semibold text-yellow-600 hover:text-yellow-700 group-hover:translate-x-1 transition-all duration-300">
-                Find Agents →
+                {t('home.marketOverview.agentsBrokers')} →
               </Link>
             </div>
           </div>
@@ -114,10 +116,10 @@ const MarketOverview = () => {
                   <div className="text-xs text-gray-500">Avg. Value</div>
                 </div>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">Home Values</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">Figure out the home values around a neighborhood with detailed analytics</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">{t('home.marketOverview.homeValues')}</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">{t('home.marketOverview.valuesDescription')}</p>
               <Link to="/home-values" className="inline-flex items-center text-sm font-semibold text-purple-600 hover:text-purple-700 group-hover:translate-x-1 transition-all duration-300">
-                Check Values →
+                {t('home.marketOverview.homeValues')} →
               </Link>
             </div>
           </div>

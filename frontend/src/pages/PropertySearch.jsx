@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { propertyService } from '../services/propertyService';
 import ComingSoonModal from '../components/UI/ComingSoonModal';
 import { useComingSoon } from '../hooks/useComingSoon';
@@ -22,6 +23,17 @@ import {
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
 const PropertySearch = () => {
+  const { t } = useTranslation();
+  // Build absolute URLs for images coming from backend '/uploads'
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
+  const toImageUrl = (src) => {
+    if (!src) return '/images/property1.jpg';
+    if (/^https?:\/\//i.test(src)) return src;
+    if (src.startsWith('/uploads')) return `${API_ORIGIN}${src}`;
+    if (src.startsWith('uploads')) return `${API_ORIGIN}/${src}`;
+    return src;
+  };
   const [searchParams] = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [filteredProperties, setFilteredProperties] = useState([]);
@@ -71,6 +83,8 @@ const PropertySearch = () => {
         let propertiesData = [];
         if (Array.isArray(response)) {
           propertiesData = response;
+        } else if (response && response.data && Array.isArray(response.data.properties)) {
+          propertiesData = response.data.properties;
         } else if (response && Array.isArray(response.properties)) {
           propertiesData = response.properties;
         } else if (response && Array.isArray(response.data)) {
@@ -85,7 +99,17 @@ const PropertySearch = () => {
           // Handle location object properly
           let locationString = '';
           if (typeof property.location === 'string') {
-            locationString = property.location;
+            // If it's a string representation of an object, try to parse it
+            if (property.location.includes('city=') && property.location.includes('address=')) {
+              // Extract city and address from string like "@{city=Noida; address=kestopur,balaji bhawan}"
+              const cityMatch = property.location.match(/city=([^;]+)/);
+              const addressMatch = property.location.match(/address=([^}]+)/);
+              const city = cityMatch ? cityMatch[1] : '';
+              const address = addressMatch ? addressMatch[1] : '';
+              locationString = [address, city].filter(Boolean).join(', ');
+            } else {
+              locationString = property.location;
+            }
           } else if (property.location && typeof property.location === 'object') {
             // If location is an object, extract the relevant parts
             const { address, city, state, zipCode } = property.location;
@@ -102,7 +126,14 @@ const PropertySearch = () => {
             location: locationString,
             price: property.price || 0,
             priceDisplay: property.priceDisplay || `₹${(property.price || 0).toLocaleString()}`,
-            image: property.image || '/images/property1.jpg',
+            image: (() => {
+              if (Array.isArray(property.images) && property.images.length > 0) {
+                return toImageUrl(property.images[0]);
+              } else if (typeof property.images === 'string' && property.images.trim()) {
+                return toImageUrl(property.images.split(' ')[0]); // Take first image if it's a space-separated string
+              }
+              return '/images/property1.jpg';
+            })(),
             type: property.type || property.propertyType || 'house',
             bedrooms: property.bedrooms || 0,
             bathrooms: property.bathrooms || 0,
@@ -308,17 +339,16 @@ const PropertySearch = () => {
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Find Your Perfect Property</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">{t('search.title')}</h1>
             <p className="text-xl text-purple-100 mb-8 max-w-3xl mx-auto">
-              Discover amazing properties from apartments to villas. 
-              Find your ideal home with our comprehensive search and filtering options.
+              {t('search.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={() => document.getElementById('search-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
               >
-                Start Your Search
+                {t('home.hero.startSearch')}
               </button>
               <button 
                 onClick={() => showComingSoon(
@@ -327,7 +357,7 @@ const PropertySearch = () => {
                 )}
                 className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition-colors"
               >
-                View Virtual Tours
+                {t('home.hero.viewTours')}
               </button>
             </div>
           </div>

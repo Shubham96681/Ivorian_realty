@@ -8,12 +8,17 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import winston from 'winston';
+import { PortManager, getDatabase } from '@ivorian-realty/shared-lib';
+import { Collection } from 'mongodb';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const portManager = PortManager.getInstance();
+
+// Database collection
+let usersCollection: Collection;
 
 // Configure logger
 const logger = winston.createLogger({
@@ -54,8 +59,7 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Mock user database (in production, this would be MongoDB)
-const users: any[] = [];
+// Database will be initialized in startServer function
 
 // Register endpoint
 app.post('/register', async (req, res) => {
@@ -88,7 +92,7 @@ app.post('/register', async (req, res) => {
     }
 
     // Check if user already exists
-    const existingUser = users.find(user => user.email === email);
+    const existingUser = await usersCollection.findOne({ email });
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -112,7 +116,7 @@ app.post('/register', async (req, res) => {
       updatedAt: new Date()
     };
 
-    users.push(user);
+    await usersCollection.insertOne(user);
 
     // Generate JWT token
     const token = jwt.sign(
@@ -161,7 +165,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Find user
-    const user = users.find(u => u.email === email);
+    const user = await usersCollection.findOne({ email });
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -224,7 +228,7 @@ app.get('/me', (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-    const user = users.find(u => u.id === decoded.userId);
+    const user = await usersCollection.findOne({ id: decoded.userId });
     
     if (!user) {
       return res.status(404).json({
@@ -269,9 +273,9 @@ app.put('/profile', (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-    const userIndex = users.findIndex(u => u.id === decoded.userId);
+    const user = await usersCollection.findOne({ id: decoded.userId });
     
-    if (userIndex === -1) {
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
@@ -280,13 +284,19 @@ app.put('/profile', (req, res) => {
 
     // Update user data
     const { firstName, lastName, phone, role } = req.body;
-    if (firstName) users[userIndex].firstName = firstName;
-    if (lastName) users[userIndex].lastName = lastName;
-    if (phone !== undefined) users[userIndex].phone = phone;
-    if (role) users[userIndex].role = role;
-    users[userIndex].updatedAt = new Date();
+    const updateData: any = { updatedAt: new Date() };
+    
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (phone !== undefined) updateData.phone = phone;
+    if (role) updateData.role = role;
 
-    const updatedUser = users[userIndex];
+    await usersCollection.updateOne(
+      { id: decoded.userId },
+      { $set: updateData }
+    );
+
+    const updatedUser = await usersCollection.findOne({ id: decoded.userId });
 
     res.json({
       success: true,
@@ -360,10 +370,40 @@ app.use('*', (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`Auth service server running on port ${PORT}`);
-  console.log(`🔐 Auth service running on http://localhost:${PORT}`);
-});
+// Initialize and start server
+async function startServer() {
+  try {
+    // Initialize port configuration
+    await portManager.initializePorts();
+    
+    // Initialize MongoDB connection
+    const db = await getDatabase();
+    usersCollection = db.collection('users');
+    
+    // Create indexes for better performance
+    await usersCollection.createIndex({ email: 1 }, { unique: true });
+    await usersCollection.createIndex({ id: 1 }, { unique: true });
+    
+    console.log('✅ MongoDB connected and indexes created');
+    
+    // Get the assigned port for Auth Service
+    const PORT = portManager.getPort('auth-service') || 3001;
+    
+    // Start server
+    app.listen(PORT, () => {
+      logger.info(`Auth service server running on port ${PORT}`);
+      console.log(`🔐 Auth service running on http://localhost:${PORT}`);
+      console.log(`🗄️ MongoDB: ${process.env.MONGODB_URI || 'mongodb://localhost:27017'}`);
+    });
+
+  } catch (error) {
+    logger.error('Failed to start Auth Service:', error);
+    console.error('❌ MongoDB connection failed. Make sure MongoDB is running.');
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
 
 export default app;

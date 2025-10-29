@@ -1,0 +1,6 @@
+{
+  "frontend": 3000,
+  "api-gateway": 8000,
+  "auth-service": 3001,
+  "property-service": 3002
+}

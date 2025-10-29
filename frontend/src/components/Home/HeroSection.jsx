@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon
@@ -8,6 +9,7 @@ import ComingSoonModal from '../UI/ComingSoonModal';
 import { useComingSoon } from '../../hooks/useComingSoon';
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('buy');
   const [searchForm, setSearchForm] = useState({
@@ -100,16 +102,12 @@ const HeroSection = () => {
             
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               <span className="text-white drop-shadow-2xl">
-                Connecting Buyers and Renters
-              </span>
-              <br />
-              <span className="text-white drop-shadow-2xl">
-                with Their Dream Home!
+                {t('home.hero.title')}
               </span>
             </h1>
             
             <p className="text-lg sm:text-xl md:text-2xl text-white mb-8 leading-relaxed font-light drop-shadow-lg">
-              Find your perfect home with our comprehensive real estate platform. Discover verified properties, get expert guidance, and secure the best deals.
+              {t('home.hero.description')}
             </p>
             
             {/* Feature highlights */}

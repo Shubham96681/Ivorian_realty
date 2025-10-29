@@ -3,15 +3,30 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+// import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
 import winston from 'winston';
+import { PortManager, getDatabase } from '@ivorian-realty/shared-lib';
+import { 
+  validateRegistration, 
+  validateLogin, 
+  // validatePropertySearch,
+  handleValidationErrors, 
+  sanitizeRequest 
+} from './middleware/validation';
+import { errorHandler, notFoundHandler, asyncHandler } from './middleware/errorHandler';
+import { authenticateToken, optionalAuth } from './middleware/auth';
+import { AuthService } from './services/authService';
+import { PropertyService } from './services/propertyService';
+import { seedDatabase } from './utils/seedData';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const portManager = PortManager.getInstance();
+const authService = new AuthService();
+const propertyService = new PropertyService();
 
 // Configure logger
 const logger = winston.createLogger({
@@ -29,14 +44,31 @@ const logger = winston.createLogger({
 });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Input sanitization
+app.use(sanitizeRequest);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -55,34 +87,128 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Proxy configuration for microservices
-const authServiceProxy = createProxyMiddleware({
-  target: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/api/auth': ''
-  },
-  onError: (err, _req, res) => {
-    logger.error('Auth service proxy error:', err);
-    res.status(500).json({ error: 'Auth service unavailable' });
-  }
-});
+// Authentication endpoints with validation and MongoDB integration
+app.post('/api/auth/register', 
+  validateRegistration, 
+  handleValidationErrors, 
+  asyncHandler(async (req, res) => {
+    const result = await authService.register(req.body);
+    res.status(201).json(result);
+  })
+);
 
-const propertyServiceProxy = createProxyMiddleware({
-  target: process.env.PROPERTY_SERVICE_URL || 'http://localhost:3002',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/api/properties': ''
-  },
-  onError: (err, _req, res) => {
-    logger.error('Property service proxy error:', err);
-    res.status(500).json({ error: 'Property service unavailable' });
-  }
-});
+app.post('/api/auth/login', 
+  validateLogin, 
+  handleValidationErrors, 
+  asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    const result = await authService.login(email, password);
+    res.status(200).json(result);
+  })
+);
 
-// Route proxies
-app.use('/api/auth', authServiceProxy);
-app.use('/api/properties', propertyServiceProxy);
+app.get('/api/auth/me', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const user = await authService.getCurrentUser(req.user!.userId);
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  })
+);
+
+app.put('/api/auth/profile', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const user = await authService.updateProfile(req.user!.userId, req.body);
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: user
+    });
+  })
+);
+
+app.post('/api/auth/change-password', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    await authService.changePassword(req.user!.userId, currentPassword, newPassword);
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  })
+);
+
+// Property endpoints with validation and MongoDB integration
+app.get('/api/properties', 
+  optionalAuth,
+  asyncHandler(async (req, res) => {
+    const filters = {
+      search: req.query.search as string,
+      type: req.query.type as string,
+      minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+      maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+      city: req.query.city as string,
+      bedrooms: req.query.bedrooms ? Number(req.query.bedrooms) : undefined,
+      bathrooms: req.query.bathrooms ? Number(req.query.bathrooms) : undefined,
+      status: req.query.status as string,
+      page: req.query.page ? Number(req.query.page) : 1,
+      limit: req.query.limit ? Number(req.query.limit) : 10
+    };
+    
+    const result = await propertyService.getAllProperties(filters);
+    res.status(200).json(result);
+  })
+);
+
+app.get('/api/properties/:id', 
+  optionalAuth,
+  asyncHandler(async (req, res) => {
+    const result = await propertyService.getPropertyById(req.params.id);
+    res.status(200).json(result);
+  })
+);
+
+app.post('/api/properties', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const propertyData = {
+      ...req.body,
+      ownerId: req.user!.userId
+    };
+    const result = await propertyService.createProperty(propertyData);
+    res.status(201).json(result);
+  })
+);
+
+app.put('/api/properties/:id', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const result = await propertyService.updateProperty(req.params.id, req.body);
+    res.status(200).json(result);
+  })
+);
+
+app.delete('/api/properties/:id', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const result = await propertyService.deleteProperty(req.params.id);
+    res.status(200).json(result);
+  })
+);
+
+app.get('/api/properties/owner/:ownerId', 
+  authenticateToken, 
+  asyncHandler(async (req, res) => {
+    const result = await propertyService.getPropertiesByOwner(req.params.ownerId);
+    res.status(200).json(result);
+  })
+);
+
+// Proxy configuration will be set up in startServer function
 
 // Default route
 app.get('/', (_req, res) => {
@@ -97,27 +223,44 @@ app.get('/', (_req, res) => {
   });
 });
 
-// Error handling middleware
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled error:', err);
-  res.status(500).json({
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-  });
-});
-
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Not found',
-    message: `Route ${req.originalUrl} not found`
-  });
-});
+app.use('*', notFoundHandler);
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Initialize and start server
+async function startServer() {
+  try {
+    // Connect to MongoDB
+    await getDatabase();
+    logger.info('Connected to MongoDB');
+
+    // Seed database with sample data
+    await seedDatabase();
+
+    // Initialize port configuration
+    await portManager.initializePorts();
+    
+    // Get the assigned port for API Gateway
+    const PORT = portManager.getPort('api-gateway') || 8000;
 
 // Start server
 app.listen(PORT, () => {
   logger.info(`API Gateway server running on port ${PORT}`);
   console.log(`🚀 API Gateway running on http://localhost:${PORT}`);
-});
+      console.log(`📊 MongoDB connected successfully`);
+      console.log(`🔐 Authentication endpoints: /api/auth/*`);
+      console.log(`🏠 Property endpoints: /api/properties/*`);
+    });
+
+  } catch (error) {
+    logger.error('Failed to start API Gateway:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
 
 export default app;

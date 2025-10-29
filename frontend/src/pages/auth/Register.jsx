@@ -5,7 +5,8 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
@@ -56,8 +57,8 @@ const Register = () => {
 
     try {
       const registrationData = {
-        firstName: formData.name.split(' ')[0],
-        lastName: formData.name.split(' ').slice(1).join(' ') || '',
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
@@ -141,21 +142,39 @@ const Register = () => {
             {/* Personal Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Full Name
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                  First Name
                 </label>
                 <input
-                  id="name"
-                  name="name"
+                  id="firstName"
+                  name="firstName"
                   type="text"
                   required
-                  value={formData.name}
+                  value={formData.firstName}
                   onChange={handleChange}
                   className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your first name"
                 />
               </div>
               
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter your last name"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                   Phone Number
@@ -168,7 +187,7 @@ const Register = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="+91 98765 43210"
+                  placeholder="+225 123456789"
                 />
               </div>
             </div>

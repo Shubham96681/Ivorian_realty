@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { 
   Bars3Icon, 
   XMarkIcon, 
@@ -22,6 +24,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Header = () => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -157,7 +160,7 @@ const Header = () => {
 
   const navigationItems = [
     {
-      label: 'Buy/Rent',
+      label: t('navigation.buyRent'),
       dropdown: [
         { label: 'Buy', submenu: [
           { name: 'Single Family Homes', path: '/single-family-homes' },
@@ -191,7 +194,7 @@ const Header = () => {
       ]
     },
     {
-      label: 'Home Values',
+      label: t('navigation.homeValues'),
       dropdown: [
         { label: 'Search & Compare', submenu: [
           { name: 'Home Values Search', path: '/home-values-search' },
@@ -206,7 +209,7 @@ const Header = () => {
       ]
     },
     {
-      label: 'Explore',
+      label: t('navigation.explore'),
       dropdown: [
         { label: 'Schools', submenu: [
           { name: 'Public Schools', path: '/schools' },
@@ -229,7 +232,7 @@ const Header = () => {
       ]
     },
     {
-      label: 'Agents',
+      label: t('navigation.agents'),
       dropdown: [
         { label: 'Find Agents', submenu: [
           { name: 'Real Estate Agents', path: '/real-estate-agents' },
@@ -244,7 +247,7 @@ const Header = () => {
       ]
     },
     {
-      label: 'Mortgage',
+      label: t('navigation.mortgage'),
       dropdown: [
         { label: 'Tools & Rates', submenu: [
           { name: 'Mortgage Center', path: '/mortgage-center' },
@@ -268,23 +271,24 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-row justify-between items-center text-xs sm:text-sm py-1">
             <div className="flex items-center">
-              <span className="text-xs sm:text-sm">Enjoy all Benefits of Ivorian Realty</span>
-              <span className="hidden sm:inline text-xs sm:text-sm ml-4">Save searches and favorites, ask questions, and connect with agents</span>
+              <span className="text-xs sm:text-sm">{t('header.welcomeMessage')}</span>
+              <span className="hidden sm:inline text-xs sm:text-sm ml-4">{t('header.subtitle')}</span>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               {isAuthenticated ? (
                 <div className="flex items-center space-x-1 sm:space-x-2">
                   <UserIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-xs sm:text-sm truncate max-w-20 sm:max-w-none">{user?.name}</span>
+                  <span className="text-xs sm:text-sm truncate max-w-20 sm:max-w-none">{user?.firstName} {user?.lastName}</span>
                   <span className="text-xs hidden sm:inline">({getRoleDisplayName(user?.role)})</span>
                 </div>
               ) : (
                 <>
-                  <Link to="/register" className="hover:underline text-xs sm:text-sm">Sign up</Link>
+                  <Link to="/register" className="hover:underline text-xs sm:text-sm">{t('navigation.signUp')}</Link>
                   <span className="hidden sm:inline">/</span>
-                  <Link to="/login" className="hover:underline text-xs sm:text-sm">Sign In</Link>
+                  <Link to="/login" className="hover:underline text-xs sm:text-sm">{t('navigation.signIn')}</Link>
                 </>
               )}
+              <LanguageSwitcher />
             </div>
           </div>
         </div>
@@ -306,7 +310,7 @@ const Header = () => {
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search properties, locations..."
+                  placeholder={t('header.searchPlaceholder')}
                   value={searchQuery}
                   onChange={handleSearchInput}
                   onFocus={() => searchQuery.length > 2 && setShowSuggestions(true)}
@@ -520,7 +524,7 @@ const Header = () => {
                     className="flex items-center space-x-1 p-1.5 sm:p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors duration-200"
                   >
                     <UserCircleIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden sm:inline text-sm font-medium">{user?.name}</span>
+                    <span className="hidden sm:inline text-sm font-medium">{user?.firstName} {user?.lastName}</span>
                     <ChevronDownIcon className="h-3 w-3" />
                   </button>
 
@@ -529,13 +533,13 @@ const Header = () => {
                       <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
                         <div className="flex items-center">
                           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            {user?.name?.charAt(0)}
+                            {user?.firstName?.charAt(0)}
                           </div>
                           <div className="ml-3">
-                            <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                            <p className="text-sm font-semibold text-gray-900">{user?.firstName} {user?.lastName}</p>
                             <div className="text-xs text-gray-500 flex items-center">
                               <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                              {getRoleDisplayName(user?.role)}
+                              {user?.firstName} {user?.lastName}
                             </div>
                           </div>
                         </div>
@@ -547,7 +551,7 @@ const Header = () => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <UserIcon className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                          <span>Profile</span>
+                          <span>{t('navigation.profile')}</span>
                           <div className="ml-auto w-2 h-2 bg-blue-100 rounded-full group-hover:bg-blue-500 transition-colors duration-200"></div>
                         </Link>
                         <Link
@@ -556,7 +560,7 @@ const Header = () => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <Cog6ToothIcon className="h-4 w-4 mr-3 group-hover:rotate-90 transition-transform duration-200" />
-                          <span>Settings</span>
+                          <span>{t('navigation.settings')}</span>
                           <div className="ml-auto w-2 h-2 bg-blue-100 rounded-full group-hover:bg-blue-500 transition-colors duration-200"></div>
                         </Link>
                         <div className="border-t border-gray-100 mt-2 pt-2">
@@ -573,7 +577,7 @@ const Header = () => {
                             className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 rounded-lg mx-2 group"
                           >
                             <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3 group-hover:scale-110 transition-transform duration-200" />
-                            <span>Sign Out</span>
+                            <span>{t('navigation.signOut')}</span>
                             <div className="ml-auto w-2 h-2 bg-red-100 rounded-full group-hover:bg-red-500 transition-colors duration-200"></div>
                           </button>
                         </div>
@@ -606,7 +610,7 @@ const Header = () => {
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search properties, locations..."
+                  placeholder={t('header.searchPlaceholder')}
                   value={searchQuery}
                   onChange={handleSearchInput}
                   onFocus={() => searchQuery.length > 2 && setShowSuggestions(true)}

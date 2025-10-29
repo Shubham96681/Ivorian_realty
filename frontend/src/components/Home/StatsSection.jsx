@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   HomeIcon, 
   UserGroupIcon, 
@@ -9,38 +10,39 @@ import {
 } from '@heroicons/react/24/outline';
 
 const StatsSection = () => {
+  const { t } = useTranslation();
   const stats = [
     { 
-      label: "Properties Listed", 
+      label: t('home.achievements.propertiesListed'), 
       value: "10,000+", 
       icon: HomeIcon,
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-500/10",
-      description: "Premium properties across India"
+      description: t('home.achievements.propertiesDescription')
     },
     { 
-      label: "Happy Customers", 
+      label: t('home.achievements.happyCustomers'), 
       value: "5,000+", 
       icon: UserGroupIcon,
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-500/10",
-      description: "Satisfied homeowners and investors"
+      description: t('home.achievements.customersDescription')
     },
     { 
-      label: "Cities Covered", 
+      label: t('home.achievements.citiesCovered'), 
       value: "25+", 
       icon: MapPinIcon,
       color: "from-purple-500 to-purple-600",
       bgColor: "bg-purple-500/10",
-      description: "Major cities and emerging markets"
+      description: t('home.achievements.citiesDescription')
     },
     { 
-      label: "Years Experience", 
+      label: t('home.achievements.yearsExperience'), 
       value: "15+", 
       icon: ClockIcon,
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-500/10",
-      description: "Trusted real estate expertise"
+      description: t('home.achievements.experienceDescription')
     }
   ];
 
@@ -72,12 +74,12 @@ const StatsSection = () => {
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-              Trusted by Thousands
+              {t('home.achievements.title')}
             </span>
           </h2>
           
           <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            Join thousands of satisfied customers who have found their dream homes with Ivorian Realty
+            {t('home.achievements.subtitle')}
           </p>
         </div>
 

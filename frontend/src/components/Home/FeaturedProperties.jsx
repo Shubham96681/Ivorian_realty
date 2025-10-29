@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ComingSoonModal from '../UI/ComingSoonModal';
 import { useComingSoon } from '../../hooks/useComingSoon';
+import { propertyService } from '../../services/propertyService';
 import { 
   MapPinIcon, 
   HomeIcon, 
@@ -11,84 +13,130 @@ import {
 } from '@heroicons/react/24/outline';
 
 const FeaturedProperties = () => {
+  const { t } = useTranslation();
+  // Build absolute URLs for images coming from backend '/uploads'
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+  const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
+  const toImageUrl = (src) => {
+    if (!src) return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400';
+    if (/^https?:\/\//i.test(src)) return src;
+    if (src.startsWith('/uploads')) return `${API_ORIGIN}${src}`;
+    if (src.startsWith('uploads')) return `${API_ORIGIN}/${src}`;
+    return src;
+  };
   const { isOpen, modalContent, showComingSoon, hideComingSoon } = useComingSoon();
-  const featuredProperties = [
-    {
-      id: 1,
-      title: "Luxury 3BHK Apartment",
-      location: "DLF Phase 2, Gurgaon",
-      price: "₹1.2 Cr",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400",
-      type: "Apartment",
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "1200 sq ft",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Modern Villa",
-      location: "Sector 57, Gurgaon",
-      price: "₹2.5 Cr",
-      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400",
-      type: "Villa",
-      bedrooms: 4,
-      bathrooms: 3,
-      area: "2500 sq ft",
-      featured: true
-    },
-    {
-      id: 3,
-      title: "Commercial Office Space",
-      location: "Cyber City, Gurgaon",
-      price: "₹50 Lakh",
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400",
-      type: "Commercial",
-      bedrooms: 0,
-      bathrooms: 2,
-      area: "800 sq ft",
-      featured: false
-    },
-    {
-      id: 4,
-      title: "Premium Penthouse",
-      location: "Bandra West, Mumbai",
-      price: "₹8.5 Cr",
-      image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400",
-      type: "Penthouse",
-      bedrooms: 4,
-      bathrooms: 4,
-      area: "3200 sq ft",
-      featured: true
-    },
-    {
-      id: 5,
-      title: "Cozy Studio Apartment",
-      location: "Koramangala, Bangalore",
-      price: "₹45 Lakh",
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400",
-      type: "Studio",
-      bedrooms: 1,
-      bathrooms: 1,
-      area: "600 sq ft",
-      featured: false
-    },
-    {
-      id: 6,
-      title: "Luxury Farmhouse",
-      location: "Greater Noida, Delhi NCR",
-      price: "₹3.2 Cr",
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400",
-      type: "Farmhouse",
-      bedrooms: 5,
-      bathrooms: 4,
-      area: "4500 sq ft",
-      featured: true
-    }
-  ];
+  const [featuredProperties, setFeaturedProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch properties from API
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true);
+        const response = await propertyService.getProperties();
+        
+        // Ensure we have an array of properties
+        let propertiesData = [];
+        if (Array.isArray(response)) {
+          propertiesData = response;
+        } else if (response && response.data && Array.isArray(response.data.properties)) {
+          propertiesData = response.data.properties;
+        } else if (response && Array.isArray(response.properties)) {
+          propertiesData = response.properties;
+        } else if (response && Array.isArray(response.data)) {
+          propertiesData = response.data;
+        } else {
+          console.warn('No properties array found in response:', response);
+          propertiesData = [];
+        }
+        
+        // Transform API data to match component expectations
+        const transformedProperties = propertiesData.map(property => {
+          // Handle location object properly
+          let locationString = '';
+          if (typeof property.location === 'string') {
+            // If it's a string representation of an object, try to parse it
+            if (property.location.includes('city=') && property.location.includes('address=')) {
+              // Extract city and address from string like "@{city=Noida; address=kestopur,balaji bhawan}"
+              const cityMatch = property.location.match(/city=([^;]+)/);
+              const addressMatch = property.location.match(/address=([^}]+)/);
+              const city = cityMatch ? cityMatch[1] : '';
+              const address = addressMatch ? addressMatch[1] : '';
+              locationString = [address, city].filter(Boolean).join(', ');
+            } else {
+              locationString = property.location;
+            }
+          } else if (property.location && typeof property.location === 'object') {
+            const { address, city, state, zipCode } = property.location;
+            locationString = [address, city, state, zipCode].filter(Boolean).join(', ');
+          } else if (property.address || property.city) {
+            locationString = `${property.address || ''}, ${property.city || ''}`.replace(/^,\s*|,\s*$/g, '');
+          } else {
+            locationString = 'Location not specified';
+          }
+
+          return {
+            id: property.id || property._id,
+            title: property.title || 'Property',
+            location: locationString,
+            price: `FCFA ${(property.price || 0).toLocaleString()}`,
+            image: (() => {
+              if (Array.isArray(property.images) && property.images.length > 0) {
+                return toImageUrl(property.images[0]);
+              } else if (typeof property.images === 'string' && property.images.trim()) {
+                return toImageUrl(property.images.split(' ')[0]); // Take first image if it's a space-separated string
+              }
+              return 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400';
+            })(),
+            type: property.type || 'house',
+            bedrooms: property.bedrooms || 0,
+            bathrooms: property.bathrooms || 0,
+            area: property.area ? `${property.area} sq ft` : 'N/A',
+            featured: true
+          };
+        });
+        
+        setFeaturedProperties(transformedProperties);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+        // Fallback to empty array if API fails
+        setFeaturedProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
 
   // Duplicate properties for seamless carousel
   const carouselProperties = [...featuredProperties, ...featuredProperties];
+
+  if (loading) {
+    return (
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">{t('common.loading')}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (featuredProperties.length === 0) {
+    return (
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('search.noPropertiesFound')}</h2>
+            <p className="text-gray-600">{t('search.tryAdjustingCriteria')}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50 relative overflow-hidden">
@@ -110,12 +158,12 @@ const FeaturedProperties = () => {
           
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Premium Properties
+              {t('home.featuredProperties.title')}
             </span>
           </h2>
           
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Discover our handpicked selection of premium properties with exceptional value and prime locations
+            {t('home.featuredProperties.subtitle')}
           </p>
         </div>
 
@@ -214,7 +262,7 @@ const FeaturedProperties = () => {
                       to={`/property/${property.id}`}
                       className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                     >
-                      View Details
+                      {t('home.featuredProperties.viewDetails')}
                     </Link>
                   </div>
                 </div>
@@ -227,10 +275,10 @@ const FeaturedProperties = () => {
         <div className="text-center mt-12 sm:mt-16">
           <div className="inline-flex items-center space-x-4">
             <Link to="/search" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-              View All Properties
+              {t('home.featuredProperties.viewAll')}
             </Link>
             <Link to="/contact" className="bg-white/80 backdrop-blur-sm border border-blue-200 text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all duration-300">
-              Get Expert Advice
+              {t('home.featuredProperties.getAdvice')}
             </Link>
           </div>
         </div>

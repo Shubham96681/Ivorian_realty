@@ -5,21 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:dynamic": "vite --port 0",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "setup-backend": "node scripts/setup-backend.js",
     "backend:dev": "cd backend-example && npm run dev",
-    "backend:start": "cd backend-example && npm start"
+    "backend:start": "cd backend-example && npm start",
+    "ports": "node ../scripts/show-ports.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
     "axios": "^1.12.2",
+    "i18next": "^25.6.0",
+    "i18next-browser-languagedetector": "^8.2.0",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.63.0",
+    "react-i18next": "^16.2.1",
     "react-router-dom": "^7.9.1",
     "yup": "^1.7.1"
   },
