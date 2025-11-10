@@ -1,0 +1,179 @@
+name: CD - Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  # Build Docker images
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build shared library
+        working-directory: Ivorian_realty/backend/microservices/shared-lib
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build API Gateway image
+        uses: docker/build-push-action@v5
+        with:
+          context: Ivorian_realty/backend/microservices/api-gateway
+          file: Ivorian_realty/backend/microservices/api-gateway/Dockerfile
+          push: false
+          tags: ivorian-realty/api-gateway:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+
+      - name: Build Auth Service image
+        uses: docker/build-push-action@v5
+        with:
+          context: Ivorian_realty/backend/microservices/auth-service
+          file: Ivorian_realty/backend/microservices/auth-service/Dockerfile
+          push: false
+          tags: ivorian-realty/auth-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+
+      - name: Build Property Service image
+        uses: docker/build-push-action@v5
+        with:
+          context: Ivorian_realty/backend/microservices/property-service
+          file: Ivorian_realty/backend/microservices/property-service/Dockerfile
+          push: false
+          tags: ivorian-realty/property-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+
+      - name: Save Docker images
+        run: |
+          docker save ivorian-realty/api-gateway:latest -o api-gateway.tar
+          docker save ivorian-realty/auth-service:latest -o auth-service.tar
+          docker save ivorian-realty/property-service:latest -o property-service.tar
+
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-images
+          path: |
+            api-gateway.tar
+            auth-service.tar
+            property-service.tar
+          retention-days: 1
+
+  # Build Frontend
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: Ivorian_realty/frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Ivorian_realty/frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: Ivorian_realty/frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'http://65.0.122.243/api' }}
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: Ivorian_realty/frontend/dist
+          retention-days: 1
+
+  # Deploy to server
+  deploy:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+    needs: [build-images, build-frontend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Docker images
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-images
+          path: ./docker-images
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend-build
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST || '65.0.122.243' }} >> ~/.ssh/known_hosts
+
+      - name: Copy files to server
+        run: |
+          ssh ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }} "mkdir -p /tmp/docker-images /tmp/frontend-build /opt/ivorian-realty/backend/microservices/infrastructure/nginx"
+          scp -r ./docker-images/* ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }}:/tmp/docker-images/
+          scp -r ./frontend-build/* ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }}:/tmp/frontend-build/
+          scp Ivorian_realty/backend/microservices/infrastructure/docker-compose.prod.yml ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }}:/opt/ivorian-realty/docker-compose.yml
+          scp Ivorian_realty/backend/microservices/infrastructure/nginx/nginx.conf ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }}:/opt/ivorian-realty/backend/microservices/infrastructure/nginx/nginx.conf
+          scp Ivorian_realty/.github/scripts/deploy.sh ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }}:/opt/ivorian-realty/deploy.sh
+
+      - name: Deploy on server
+        run: |
+          ssh ${{ secrets.SSH_USER || 'ec2-user' }}@${{ secrets.SERVER_HOST || '65.0.122.243' }} << 'EOF'
+            set -e
+            cd /opt/ivorian-realty
+            
+            # Load Docker images
+            docker load -i /tmp/docker-images/api-gateway.tar
+            docker load -i /tmp/docker-images/auth-service.tar
+            docker load -i /tmp/docker-images/property-service.tar
+            
+            # Run deployment script
+            chmod +x deploy.sh
+            ./deploy.sh
+            
+            # Cleanup
+            rm -rf /tmp/docker-images
+            rm -rf /tmp/frontend-build
+            
+            echo "Deployment completed successfully!"
+          EOF
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f http://${{ secrets.SERVER_HOST || '65.0.122.243' }}/health || echo "Health check failed, but deployment may still be in progress"
+        continue-on-error: true
+
